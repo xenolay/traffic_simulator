@@ -69,17 +69,18 @@ int main(){
 
 		//乗れてない人のカウンタを上げる
 		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); ) {
-			if ((*passenger_itr)->is_arrived()) {	// 目的地に到着したとき
-				// 全体の待ち時間を加算
-				total_waiting_time += (*passenger_itr)->get_wating_time();
-				// 全体の客リストから除外
-				passenger_itr = passenger_list.erase(passenger_itr);
-				// イテレータの調整
-				if (passenger_itr == passenger_list.begin()) { continue; }
-				else { passenger_itr--; }
-			}
-			else if (passenger_itr->use_count() <= 2) {	// バスに乗っていないとき
-				(*passenger_itr)->wating();	// 待ち時間を加算
+			if (passenger_itr->use_count() <= 2) {	// バスに乗っていないとき
+				if ((*passenger_itr)->is_arrived()) {	// 目的地に到着したとき
+					// 全体の待ち時間を加算
+					total_waiting_time += (*passenger_itr)->get_wating_time();
+					// 全体の客リストから除外
+					passenger_itr = passenger_list.erase(passenger_itr);
+					// イテレータの調整
+					if (passenger_itr == passenger_list.begin()) { continue; }
+					else { passenger_itr--; }
+				} else {
+					(*passenger_itr)->wating();	// 待ち時間を加算
+				}
 			}
 
 			// continueの関係からここでインクリメント
