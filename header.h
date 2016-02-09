@@ -13,10 +13,11 @@ class edge{ // 重み付きの辺
 };
 
 class bus{ // バス
+private:
 	int capacity; // 定員
 	int current_passengers;
 	std::vector<int> route;
-
+public:
 	bus(int cap, std::vector<int> r){
 		current_passengers = 0;
 		capacity = cap;
@@ -25,10 +26,11 @@ class bus{ // バス
 };
 
 class passenger{ // 客
+private:
 	int current_location; // 現在地
 	int destination; // 目的地
 	int waiting_time;
-
+public:
 	passenger(int curr, int dest){
 		current_location = curr;
 		destination = dest;
