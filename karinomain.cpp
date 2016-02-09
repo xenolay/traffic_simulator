@@ -3,16 +3,16 @@
 int main(){
 	int i; //l‚ğ‚Â‚­‚é
 	int totalwaitingtime;
-	list<passenger> L;
-	vector<bus> V;
-	for(i=0;i<passenger_num;i++){
+	std::list<passenger> L;
+	std::vector<bus> V;
+	for(i=0; i<passenger_num; i++){
 		test.cpp;
 		L.pushback();
 	}
 	for(i=0;i<buss_num;i++){
 		buss.cpp;
 	}
-	while(L.begin() != NULL){ // æ‹q‚ª‚¢‚é‚È‚ç‚Î
+	while(!L.empty()){ // æ‹q‚ª‚¢‚é‚È‚ç‚Î
 
 		//ƒoƒX‚ği‚ß‚é
 		for (i=0;i<size(V);i++){
@@ -28,7 +28,7 @@ int main(){
 		}
 		//l‚ğ~‚ë‚·
 		// ŠÖ”whichbus‚Í–¢’è‹`‚È‚Ì‚Å‚ ‚Æ‚Å
-	list<passenger>::iterator passenger_itr;
+	std::list<passenger>::iterator passenger_itr;
 	std::vector<bus>::iterator bus_itr;
 	for(passenger_itr = L.begin(); passenger_itr != L.end(); passenger_itr++){
 		if(*passenger_itr.current == *passenger_itr.destination){
@@ -54,6 +54,6 @@ int main(){
 			*itr.waitingtime++;
 		}
 	}
-	cout << totalwaitingtime;
+	std::cout << totalwaitingtime;
 	return 0;
 	}

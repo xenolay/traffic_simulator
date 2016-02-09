@@ -5,27 +5,62 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <memory>
+#include <list>
 
-class edge{ // 重み付きの辺
-	int from;
-	int to;
-	int weight;
+typedef std::pair<unsigned int, unsigned int> Location;
+
+inline unsigned int ManhattanDistance(const Location& start, const Location& dist)
+{
+	return static_cast<unsigned int>(std::abs(static_cast<int>(start.first) - static_cast<int>(dist.first)) + std::abs(static_cast<int>(start.second) - static_cast<int>(dist.second)));
+}
+
+class passenger { // 客
+private:
+	const unsigned int ID;
+	Location current_location; // 現在地
+	const Location destination; // 目的地
+	unsigned int waiting_time;
+
+public:
+	passenger(unsigned int IDnum, const Location& curr, const Location& dest): ID(IDnum), current_location(curr), destination(dest), waiting_time(0){}
+
+	bool update_location(const Location& next_location)
+	{
+		// 1-ノルムで1より多く進んでいたらエラー
+		if (ManhattanDistance(current_location, next_location) > 1) { return false; }
+		current_location = next_location;
+		return true;
+	}
+
+	bool is_arrived() const { return current_location == destination; }
+	
+	void wating() { waiting_time++; return; }
+	unsigned int get_wating_time() const { return waiting_time; }
+	Location get_current_location() const { return current_location; }
+	Location get_destination() const { return destination; }
 };
 
 class bus{ // バス
 private:
-	int ID;
-	int capacity; // 定員
-	int current_passengers;
-	std::vector<int> route;
+	const unsigned int ID;
+	const unsigned int capacity; // 定員
+	std::list<std::shared_ptr<passenger>> current_passengers;
+	std::vector<Location> route;
+	unsigned int current_destination_index;
+	Location current_location;
+
 public:
-	bus(int cap, std::vector<int> r){
-		current_passengers = 0;
-		capacity = cap;
-		route = r;
+	bus(unsigned int IDnum, unsigned int cap, const std::vector<Location>& r, const Location& curr)
+		: ID(IDnum), capacity(cap), current_passengers(), route(r), current_destination_index(1), current_location(curr){}
+	
+	void run()
+	{
+		// バスを動かす
+		// バスから降ろす
 	}
-	int destinaton; // 今向かっている場所
-	boolean is_going_to(int place){ // placeにこのバスが向かうかどうか
+	
+	bool is_going_to(int place){ // placeにこのバスが向かうかどうか
 		for (;;){
 			if(/*向かう*/){
 				return true;
@@ -34,21 +69,18 @@ public:
 			}
 		}
 	}
-};
 
-class passenger{ // 客
-private:
-	int ID;
-	int current_location; // 現在地
-	int destination; // 目的地
-	int waiting_time;
-public:
-	int boarding_bus; //どのバスに乗っているか
-	passenger(int curr, int dest){
-		current_location = curr;
-		destination = dest;
-		waiting_time = 0;
+	bool ride(const std::shared_ptr<passenger>& riding_passenger)
+	{
+		// capacityを超えないか判定
+		if (current_passengers.size() >= capacity) { return false; }
+
+		current_passengers.push_back(riding_passenger);
+		return true;
 	}
+
+	Location get_current_destination() const { return route[current_destination_index]; }
+	Location get_current_location() const { return current_location; }
 };
 
 #endif // _INC_CLASS_HEADER
