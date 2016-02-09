@@ -14,6 +14,7 @@ class edge{ // 重み付きの辺
 
 class bus{ // バス
 private:
+	int ID;
 	int capacity; // 定員
 	int current_passengers;
 	std::vector<int> route;
@@ -23,14 +24,26 @@ public:
 		capacity = cap;
 		route = r;
 	}
+	int destinaton // 今向かっている場所
+	boolean is_going_to(int place){ // placeにこのバスが向かうかどうか
+		for (;;){
+			if(/*向かう*/){
+				return true;
+			} else {
+				return false;
+			}
+		}
+	}
 };
 
 class passenger{ // 客
 private:
+	int ID;
 	int current_location; // 現在地
 	int destination; // 目的地
 	int waiting_time;
 public:
+	int boarding_bus; //どのバスに乗っているか
 	passenger(int curr, int dest){
 		current_location = curr;
 		destination = dest;
