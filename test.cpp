@@ -1,46 +1,106 @@
 #include "header.h"
 #include <map>
 #include <random>
+#include <fstream>
+#include <sstream>
+#include <algorithm>
 
 using std::cout;
 using std::endl;
 
 int main(){
-	// バス停位置情報
-	const unsigned int busstop_num = 4;	// バス停総数
-	std::map<unsigned int, Location> busstop_location;
-	busstop_location.insert(decltype(busstop_location)::value_type(0, { 1, 1 }));
-	busstop_location.insert(decltype(busstop_location)::value_type(1, { 1, 3 }));
-	busstop_location.insert(decltype(busstop_location)::value_type(2, { 3, 1 }));
-	busstop_location.insert(decltype(busstop_location)::value_type(3, { 3, 3 }));
-	// バス停混雑情報
-	const unsigned int prob_int[busstop_num] = {100, 50, 5, 100};
-	unsigned int cumprob[busstop_num] = { 0 };
-	cumprob[0] = prob_int[0];
-	for (unsigned int i = 1; i < busstop_num; i++){
-		cumprob[i] = cumprob[i - 1] + prob_int[i];
+	// 設定ファイルのロード
+	std::ifstream setting_file("data.txt");
+	if (setting_file.bad()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
+
+	// 全体のサイズ(1辺)
+	unsigned int size = 0;
+	setting_file >> size;	// 設定ファイルから読み込み
+
+	// バス停情報
+	std::map<unsigned int, Location> busstop_location;		// バス停位置情報
+	std::vector<unsigned int> busstop_prob;	// バス停混雑情報
+	{
+		unsigned int busstop_num = 0;	// バス停総数
+		setting_file >> busstop_num;	// 設定ファイルから読み込み
+		busstop_prob.resize(busstop_num);
+		for (unsigned int i = 0; i < busstop_num; i++) {
+			unsigned int index = 0, prob = 0, x = 0, y = 0;
+			std::string location_str;
+			// 設定ファイルから1行読み込み(空白文字区切り)
+			setting_file >> index >> location_str >> prob;
+			// 座標についてはカンマ区切りになっているので、別に空白で置換の後読み込み
+			std::replace(location_str.begin(), location_str.end(), ',', ' ');
+			std::stringstream location_stream(location_str);
+			location_stream >> x >> y;
+
+			if (x == 0 || y == 0 || x > size || y > size) {
+				std::cerr << "The " << index << "-busstop has invalid location, so the busstop wasn't registered." << std::endl;
+				continue;
+			}
+
+			// 読み込んだ情報の登録
+			busstop_location.insert(decltype(busstop_location)::value_type(index, { x, y }));
+			busstop_prob.at(i) = prob;
+		}
+
+		for (unsigned int i = 1; i < busstop_num; i++) { busstop_prob[i] += busstop_prob[i - 1]; }	// 累積確率分布もどきに変換
 	}
+
+	// バス路線図
+	std::map<unsigned int, std::vector<Location>> bus_route;
+	{
+		unsigned int bus_route_num = 0;	// 路線図総数
+		setting_file >> bus_route_num;	// 設定ファイルから読み込み
+		for (unsigned int i = 0; i < bus_route_num; i++) {
+			unsigned int index = 0, x = 0, y = 0;
+			std::string route_str, tmp;
+			// 設定ファイルから1行読み込み(空白文字区切り)
+			setting_file >> index >> route_str;
+			bus_route.emplace(index, std::vector<Location>());
+			// 路線についてはカンマ区切り&バス停index指定なので変換して登録
+			std::stringstream route_stream(route_str);
+			while(std::getline(route_stream, tmp, ',')){
+				bus_route.at(index).push_back(busstop_location.at(std::atoi(tmp.c_str())));
+			}
+		}
+	}
+
+	// バス路線図の出力
+	std::cout << "Loaded bus routes." << std::endl;
+	for (auto itr = bus_route.begin(); itr != bus_route.end(); itr++)
+	{
+		std::cout << (*itr).first << " : ";
+		std::cout << "(" << (*itr).second.begin()->first << "," << (*itr).second.begin()->second << ")";
+		for (auto itr2 = (*itr).second.begin() + 1; itr2 != (*itr).second.end(); itr2++)
+		{
+			std::cout << "->" << "(" << (*itr2).first << "," << (*itr2).second << ")";
+		}
+		std::cout << std::endl;
+	}
+
 	// 乗客配置
 	const unsigned int passenger_num = 100;	// 総乗客数
 	std::list<std::shared_ptr<passenger>> passenger_list;
 	std::random_device rnd;
-	std::uniform_int_distribution<unsigned int> rand(1, cumprob[busstop_num - 1]);
+	std::uniform_int_distribution<unsigned int> rand(1, busstop_prob[busstop_prob.size() - 1]);
 	for (unsigned int i = 0; i < passenger_num; i++)
 	{
 		// スタートと目的地のバス停をランダムに決定
 		unsigned int start_busstop = 0, dest_busstop = 0;
 		unsigned int rand_val = rand(rnd);
-		for (unsigned int temp = 0; temp < busstop_num; temp++)
+		for (unsigned int temp = 0; temp < busstop_location.size(); temp++)
 		{
-			if (rand_val <= cumprob[temp]) { start_busstop = temp; break; }
+			if (rand_val <= busstop_prob[temp]) { start_busstop = temp; break; }
 		}
 		rand_val = rand(rnd);
-		for (unsigned int temp = 0; temp < busstop_num; temp++)
+		for (unsigned int temp = 0; temp < busstop_location.size(); temp++)
 		{
-			if (rand_val <= cumprob[temp]) { dest_busstop = temp; break; }
+			if (rand_val <= busstop_prob[temp]) { dest_busstop = temp; break; }
 		}
 		if (start_busstop == dest_busstop) { i--; continue; }	// スタートと目的地が一致したらなかったことに
-		passenger_list.push_back(std::make_shared<passenger>(busstop_location[start_busstop], busstop_location[dest_busstop]));
+		// 乗客を全体のリストに登録
+		passenger_list.push_back(std::make_shared<passenger>(i, busstop_location[start_busstop], busstop_location[dest_busstop]));
 		auto start_location = busstop_location.at(start_busstop);
 		auto dest_location = busstop_location.at(dest_busstop);
 		std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << " -> " << dest_busstop << "(" << dest_location.first << "," << dest_location.second << ")" << std::endl;

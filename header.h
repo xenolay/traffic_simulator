@@ -58,16 +58,18 @@ public:
 	{
 		// バスを動かす
 		// バスから降ろす
+		// current_destination_indexのインクリメント
 	}
 	
-	bool is_going_to(int place){ // placeにこのバスが向かうかどうか
-		for (;;){
-			if(/*向かう*/){
-				return true;
-			} else {
-				return false;
-			}
-		}
+	bool is_going_to(const Location& place){ // placeにこのバスが向かうかどうか
+		//for (;;){
+		//	if(/*向かう*/){
+		//		return true;
+		//	} else {
+		//		return false;
+		//	}
+		//}
+		return true;
 	}
 
 	bool ride(const std::shared_ptr<passenger>& riding_passenger)
