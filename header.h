@@ -24,7 +24,7 @@ public:
 		capacity = cap;
 		route = r;
 	}
-	int destinaton // 今向かっている場所
+	int destinaton; // 今向かっている場所
 	boolean is_going_to(int place){ // placeにこのバスが向かうかどうか
 		for (;;){
 			if(/*向かう*/){
