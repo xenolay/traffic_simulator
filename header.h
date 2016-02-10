@@ -56,9 +56,17 @@ public:
 	
 	void run()
 	{
-		// バスを動かす
-		// バスから降ろす
-		// current_destination_indexのインクリメント
+		current_location = route[current_destination_index];// バスを動かす
+		list<std::shared_ptr<passenger>>::iterator passitr;//客を指すイテレーター定義
+		//バスから下ろす
+		for (passitr = current_passengers.begin(); passitr != current_passengers.end(); passitr++) {
+			if (*passitr->get_current_location == *passitr->get_destination()) {
+				total_waiting_time += *passitr->get_wating_time();//待ち時間を追加（total_waiting_timeの定義を上に追加？
+				current_passengers.remove(*passitr);//客のリストから削除
+			}
+		}
+
+		current_destination_index++;// current_destination_indexのインクリメント
 	}
 	
 	bool is_going_to(const Location& place){ // placeにこのバスが向かうかどうか
