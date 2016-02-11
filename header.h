@@ -69,16 +69,25 @@ public:
 		current_destination_index++;// current_destination_indexのインクリメント
 	}
 	
-	bool is_going_to(const Location& place){ // placeにこのバスが向かうかどうか
-		//for (;;){
-		//	if(/*向かう*/){
-		//		return true;
-		//	} else {
-		//		return false;
-		//	}
-		//}
-		return true;
+	bool is_going_to(const Location& place) {// placeにこのバスが向かうかどうか
+		int i = 0;
+		while (i < route.size()) {
+			if (route[i] == place) {
+				return true;
+				break;
+			}
+			else {
+				if (i == route.size()) {
+					return false;
+					break;
+				}
+				else {
+					i++;
+				}
+			}
+		}
 	}
+
 
 	bool ride(const std::shared_ptr<passenger>& riding_passenger)
 	{
