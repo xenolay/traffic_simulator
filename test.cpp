@@ -40,9 +40,8 @@ int main(int argc, char *argv[]){
 				std::cerr << "The " << index << "-busstop has invalid location, so the busstop wasn't registered." << std::endl;
 				continue;
 			}
-
-			// 読み込んだ情報の登録
-			busstop_location.insert(decltype(busstop_location)::value_type(index, { x, y }));
+            // 読み込んだ情報の登録
+            busstop_location.insert(std::pair<unsigned int, Location>(index, Location(x, y)));
 			busstop_prob.at(i) = prob;
 		}
 
