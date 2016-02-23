@@ -29,7 +29,7 @@ public:
 	bool update_location(const Location& next_location)
 	{
 		// 1-ノルムで1より多く進んでいたらエラー
-		if (ManhattanDistance(current_location, next_location) > 1) { return false; }
+        if (ManhattanDistance(current_location, next_location) > 1) { std::cout<< "fuckin' moving" << std::endl; return false; }
 		current_location = next_location;
 		return true;
 	}
