@@ -49,25 +49,29 @@ private:
 	std::list<std::shared_ptr<passenger>> current_passengers;
 	std::vector<Location> route;
 	unsigned int current_destination_index;
-	Location current_location;
+    Location current_location;
 
 public:
-	bus(unsigned int IDnum, unsigned int cap, const std::vector<Location>& r, const Location& curr)
-		: ID(IDnum), capacity(cap), current_passengers(), route(r), current_destination_index(1), current_location(curr){}
+    bus(unsigned int IDnum, unsigned int cap, const std::vector<Location>& r, int current_index ,const Location& curr)
+        : ID(IDnum), capacity(cap), current_passengers(), route(r), current_destination_index(current_index), current_location(curr){}
 	
 	void run()
 	{
+        // std::cout<< "bus" << this->ID << "was at(" << current_location.first << "," << current_location.second << ")"<< std::endl;
 		current_location = route[current_destination_index];// バスを動かす
+        std::cout<< "bus" << this->ID << "is at(" << current_location.first << "," << current_location.second << ")"<< std::endl;
         std::list<std::shared_ptr<passenger>>::iterator passitr;//客を指すイテレーター定義
 		//バスから下ろす
 		for (passitr = current_passengers.begin(); passitr != current_passengers.end(); passitr++) {
+            // std::cout << "trying to getting off from the bus" << std::endl;
             if ((*passitr)->get_current_location() == (*passitr)->get_destination()) {
                 total_waiting_time += (*passitr)->get_wating_time();//待ち時間を追加（total_waiting_timeの定義を上に追加？
 				current_passengers.remove(*passitr);//客のリストから削除
+                std::cout<< "someone left from the bus" << std::endl;
 			}
 		}
-
 		current_destination_index++;// current_destination_indexのインクリメント
+        current_destination_index = current_destination_index%4;
 	}
 	
 	bool is_going_to(const Location& place) {// placeにこのバスが向かうかどうか

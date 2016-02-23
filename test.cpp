@@ -116,13 +116,13 @@ int main(int argc, char *argv[]){
         // スタートと目的地のバス停をランダムに決定
         unsigned int start_busstop = 0;
         unsigned int rand_val = rand(rnd);
-        for (unsigned int temp = 0; temp < busstop_location.size(); temp++)
+        for (unsigned int temp = 0; temp < bus_route[0].size(); temp++)
         {
             if (rand_val <= busstop_prob[temp]) { start_busstop = temp; break; }
         }
         rand_val = rand(rnd);
         // バスを全体のリストに登録
-        bus_list.push_back(std::make_shared<bus>(i, 20, bus_route[0], busstop_location[start_busstop]));
+        bus_list.push_back(std::make_shared<bus>(i, 20, bus_route[0],start_busstop, bus_route[0].at(start_busstop)));
         auto start_location = busstop_location.at(start_busstop);
         std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << std::endl;
     }
@@ -131,7 +131,7 @@ int main(int argc, char *argv[]){
 	// メインループ
 	unsigned int total_waiting_time = 0;
     // while (!passenger_list.empty()) { // 乗客がいるならば
-    for (int i=0; i<100; i++){
+    for (int i=0; i<10; i++){
         bool ride_flag = false;
 		// バスを進める & 乗客の降車
 		for (auto bus_itr = bus_list.begin(); bus_itr != bus_list.end(); bus_itr++) {
