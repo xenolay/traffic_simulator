@@ -9,6 +9,7 @@
 #include <list>
 
 typedef std::pair<unsigned int, unsigned int> Location;
+int total_waiting_time;
 
 inline unsigned int ManhattanDistance(const Location& start, const Location& dist)
 {
@@ -57,11 +58,11 @@ public:
 	void run()
 	{
 		current_location = route[current_destination_index];// バスを動かす
-		list<std::shared_ptr<passenger>>::iterator passitr;//客を指すイテレーター定義
+        std::list<std::shared_ptr<passenger>>::iterator passitr;//客を指すイテレーター定義
 		//バスから下ろす
 		for (passitr = current_passengers.begin(); passitr != current_passengers.end(); passitr++) {
-			if (*passitr->get_current_location == *passitr->get_destination()) {
-				total_waiting_time += *passitr->get_wating_time();//待ち時間を追加（total_waiting_timeの定義を上に追加？
+            if ((*passitr)->get_current_location() == (*passitr)->get_destination()) {
+                total_waiting_time += (*passitr)->get_wating_time();//待ち時間を追加（total_waiting_timeの定義を上に追加？
 				current_passengers.remove(*passitr);//客のリストから削除
 			}
 		}

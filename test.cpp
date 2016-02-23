@@ -1,4 +1,6 @@
 #include "header.h"
+#include "traffic_simulator.h"
+#include <QApplication>
 #include <map>
 #include <random>
 #include <fstream>
@@ -8,7 +10,7 @@
 using std::cout;
 using std::endl;
 
-int main(){
+int main(int argc, char *argv[]){
 	// 設定ファイルのロード
 	std::ifstream setting_file("data.txt");
 	if (setting_file.bad()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
@@ -150,5 +152,9 @@ int main(){
 		// 全体の待ち時間を出力
 		std::cout << total_waiting_time << std::endl;
 	}
-    return 0;
+    QApplication a(argc, argv);
+    traffic_simulator w;
+    w.show();
+
+    return a.exec();
 }
