@@ -12,7 +12,7 @@ using std::endl;
 
 int main(int argc, char *argv[]){
 	// 設定ファイルのロード
-    std::ifstream setting_file("/Users/xenolay/Dev/mayfes/traffic_simulator/data.txt");
+    std::ifstream setting_file("C:/Users/k takumi/Desktop/tutorial/data.txt");
     if (setting_file.fail()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
 
 	// 全体のサイズ(1辺)
@@ -121,10 +121,13 @@ int main(int argc, char *argv[]){
             if (rand_val <= busstop_prob[temp]) { start_busstop = temp; break; }
         }
         rand_val = rand(rnd);
+        int dest_busstop=0;
+        dest_busstop=rand(rnd)%4;
         // バスを全体のリストに登録
-        bus_list.push_back(std::make_shared<bus>(i, 20, bus_route[0],start_busstop, bus_route[0].at(start_busstop)));
+        bus_list.push_back(std::make_shared<bus>(i, 20, bus_route[0],dest_busstop, bus_route[0].at(start_busstop)));
         auto start_location = busstop_location.at(start_busstop);
-        std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << std::endl;
+        auto dest_location=busstop_location.at(dest_busstop);
+        std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" <<"->"<<dest_busstop<<"("<<dest_location.first<<","<<dest_location.second<<")"<< std::endl;
     }
 
 
