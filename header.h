@@ -48,7 +48,7 @@ private:
 	const unsigned int capacity; // 定員
 	std::list<std::shared_ptr<passenger>> current_passengers;
 	std::vector<Location> route;
-	unsigned int current_destination_index;
+    unsigned int current_destination_index;
     Location current_location;
 
 public:
@@ -56,7 +56,7 @@ public:
         : ID(IDnum), capacity(cap), current_passengers(), route(r), current_destination_index(current_index), current_location(curr){}
 	
 	void run()
-	{
+    {
         // std::cout<< "bus" << this->ID << "was at(" << current_location.first << "," << current_location.second << ")"<< std::endl;
         if(current_location.first<route[current_destination_index].first){
             current_location.first++;}
@@ -65,7 +65,8 @@ public:
             else if(current_location.second<route[current_destination_index].second){
             current_location.second++;}
         else if(current_location.second>route[current_destination_index].second){
-            current_location.second--;}// バスを動かす
+            current_location.second--;}
+        //else{// バスを動かす
         std::cout<< "bus" << this->ID << "is at(" << current_location.first << "," << current_location.second << ")"<< std::endl;
         std::list<std::shared_ptr<passenger>>::iterator passitr;//客を指すイテレーター定義
 		//バスから下ろす
