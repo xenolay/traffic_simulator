@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
         }
         rand_val = rand(rnd);
         int dest_busstop=0;
-        dest_busstop=rand(rnd)%4;
+        dest_busstop=rand(rnd)%4;//かなり適当に目的地を決定
         // バスを全体のリストに登録
         bus_list.push_back(std::make_shared<bus>(i, 20, bus_route[0],dest_busstop, bus_route[0].at(start_busstop)));
         auto start_location = busstop_location.at(start_busstop);
