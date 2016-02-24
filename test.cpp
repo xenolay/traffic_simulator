@@ -121,13 +121,10 @@ int main(int argc, char *argv[]){
             if (rand_val <= busstop_prob[temp]) { start_busstop = temp; break; }
         }
         rand_val = rand(rnd);
-        int dest_busstop=0;
-        dest_busstop=rand(rnd)%4;//かなり適当に目的地を決定
         // バスを全体のリストに登録
-        bus_list.push_back(std::make_shared<bus>(i, 20, bus_route[0],dest_busstop, bus_route[0].at(start_busstop)));
+        bus_list.push_back(std::make_shared<bus>(i, 20, bus_route[0],start_busstop, bus_route[0].at(start_busstop)));
         auto start_location = busstop_location.at(start_busstop);
-        auto dest_location=busstop_location.at(dest_busstop);
-        std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" <<"->"<<dest_busstop<<"("<<dest_location.first<<","<<dest_location.second<<")"<< std::endl;
+        std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << std::endl;
     }
 
 
@@ -139,7 +136,7 @@ int main(int argc, char *argv[]){
 		// バスを進める & 乗客の降車
 		for (auto bus_itr = bus_list.begin(); bus_itr != bus_list.end(); bus_itr++) {
 			(*bus_itr)->run();
-		}
+        }
 
 		//人を乗せる
 		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); passenger_itr++) {
@@ -182,7 +179,7 @@ int main(int argc, char *argv[]){
 
         // 全体の待ち時間を出力
         std::cout << total_waiting_time << std::endl;
-	}
+    }
     QApplication a(argc, argv);
     traffic_simulator w;
     w.show();
