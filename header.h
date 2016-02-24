@@ -66,12 +66,17 @@ public:
             current_location.second++;}
         else if(current_location.second>route[current_destination_index].second){
             current_location.second--;}
-        //else{// バスを動かす
+        else{
+            if(current_destination_index+1==route.size()){
+                current_destination_index=0;
+            }
+            else{current_destination_index++;}
+        }
         std::cout<< "bus" << this->ID << "is at(" << current_location.first << "," << current_location.second << ")"<< std::endl;
         std::list<std::shared_ptr<passenger>>::iterator passitr;//客を指すイテレーター定義
 		//バスから下ろす
 		for (passitr = current_passengers.begin(); passitr != current_passengers.end(); passitr++) {
-             //std::cout << "trying to getting off from the bus" << std::endl;
+            // std::cout << "trying to getting off from the bus" << std::endl;
             if ((*passitr)->get_current_location() == (*passitr)->get_destination()) {
                 total_waiting_time += (*passitr)->get_wating_time();//待ち時間を追加（total_waiting_timeの定義を上に追加？
 				current_passengers.remove(*passitr);//客のリストから削除
