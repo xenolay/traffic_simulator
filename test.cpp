@@ -110,7 +110,7 @@ int main(int argc, char *argv[]){
 	// バスの配置
 	std::list<std::shared_ptr<bus>> bus_list;
 	//todo
-    const unsigned int bus_num = 10;	// 総乗客数
+    const unsigned int bus_num = 5;	// 総乗客数
     for (unsigned int i = 0; i < bus_num; i++)
     {
         // スタートと目的地のバス停をランダムに決定
