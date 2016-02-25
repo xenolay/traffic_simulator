@@ -12,7 +12,7 @@ using std::endl;
 
 int main(int argc, char *argv[]){
 	// 設定ファイルのロード
-    std::ifstream setting_file("C:/Users/k takumi/Desktop/tutorial/data.txt");
+    std::ifstream setting_file("../traffic_simulator/data.txt");
     if (setting_file.fail()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
 
 	// 全体のサイズ(1辺)
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]){
 	std::uniform_int_distribution<unsigned int> rand(1, busstop_prob[busstop_prob.size() - 1]);
 	for (unsigned int i = 0; i < passenger_num; i++)
 	{
-		// スタートと目的地のバス停をランダムに決定
+		// スタートと目的地のバス停をランダムに決定(バス停ごとに定められた確率に応じて)
 		unsigned int start_busstop = 0, dest_busstop = 0;
 		unsigned int rand_val = rand(rnd);
 		for (unsigned int temp = 0; temp < busstop_location.size(); temp++)
@@ -102,84 +102,94 @@ int main(int argc, char *argv[]){
 		if (start_busstop == dest_busstop) { i--; continue; }	// スタートと目的地が一致したらなかったことに
 		// 乗客を全体のリストに登録
 		passenger_list.push_back(std::make_shared<passenger>(i, busstop_location[start_busstop], busstop_location[dest_busstop]));
+		// 登録した乗客のスタート地点とゴール地点を表示
 		auto start_location = busstop_location.at(start_busstop);
 		auto dest_location = busstop_location.at(dest_busstop);
 		std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << " -> " << dest_busstop << "(" << dest_location.first << "," << dest_location.second << ")" << std::endl;
 	}
 
 	// バスの配置
+	const unsigned int bus_num = 5;	// バス総台数
+	const unsigned int bus_capacity = 20; // バス定員
+	std::vector<unsigned int> bus_allocation(bus_route.size());
+	bool valid_input = false;
+	while (!valid_input)
+	{
+		std::cout << "Allocate " << bus_num << " buses among the " << bus_route.size() << " bus routes with space sparated format." << std::endl;
+		unsigned int sum = 0;
+		for (unsigned int i = 0; i < bus_allocation.size(); i++) { std::cin >> bus_allocation[i]; sum += bus_allocation[i]; }
+		if(sum == bus_num) { valid_input = true; }
+		else
+		{
+			std::cout << "The sum of allocated buses doesn't match the number of all buses." << std::endl;
+		}
+	}
 	std::list<std::shared_ptr<bus>> bus_list;
-	//todo
-    const unsigned int bus_num = 5;	// 総乗客数
-    for (unsigned int i = 0; i < bus_num; i++)
-    {
-        // スタートと目的地のバス停をランダムに決定
-        unsigned int start_busstop = 0;
-        unsigned int rand_val = rand(rnd);
-        for (unsigned int temp = 0; temp < bus_route[0].size(); temp++)
-        {
-            if (rand_val <= busstop_prob[temp]) { start_busstop = temp; break; }
-        }
-        rand_val = rand(rnd);
-        // バスを全体のリストに登録
-        bus_list.push_back(std::make_shared<bus>(i, 20, bus_route[0],start_busstop, bus_route[0].at(start_busstop)));
-        auto start_location = busstop_location.at(start_busstop);
-        std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << std::endl;
-    }
-
+	for (unsigned int i = 0; i < bus_allocation.size(); i++)
+	{
+		rand = std::uniform_int_distribution<unsigned int>(0, bus_route[i].size() - 1);
+		for (unsigned int j = 0; j < bus_allocation.at(i); j++)
+		{
+			// スタートのバス停をランダムに決定
+			unsigned int start_busstop = rand(rnd);
+			// バスを全体のリストに登録
+			bus_list.push_back(std::make_shared<bus>(j, bus_capacity, bus_route[i], start_busstop));
+			// 登録したバスの初期位置表示
+			auto start_location = bus_list.back()->get_current_location();
+			std::cout << j << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << std::endl;
+		}
+	}
+	
 
 	// メインループ
 	unsigned int total_waiting_time = 0;
-    // while (!passenger_list.empty()) { // 乗客がいるならば
-    for (int i=0; i<10; i++){
-        bool ride_flag = false;
+    while (!passenger_list.empty()) { // 乗客がいるならば
+		//人を乗せる
+		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); passenger_itr++) {
+			// まだどのバスにも乗っていない乗客のみ
+			if (!(*passenger_itr)->is_riding())
+			{
+				// std::cout << "searching for passengers" << std::endl;
+				for (auto bus_itr = bus_list.begin(); bus_itr != bus_list.end(); bus_itr++) {
+					// std::cout << "searching for buses" << std::endl;
+					if ((*passenger_itr)->get_current_location() == (*bus_itr)->get_current_location() && (*bus_itr)->is_going_to((*passenger_itr)->get_destination())) {
+						// std::cout << "Someone rode a bus. Have a good trip." << std::endl;
+						if ((*bus_itr)->ride(*passenger_itr)) { break; }
+					}
+				}
+			}
+		}
+
 		// バスを進める & 乗客の降車
 		for (auto bus_itr = bus_list.begin(); bus_itr != bus_list.end(); bus_itr++) {
 			(*bus_itr)->run();
-        }
-
-		//人を乗せる
-		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); passenger_itr++) {
-            // std::cout << "searching for passengers" << std::endl;
-			for (auto bus_itr = bus_list.begin(); bus_itr != bus_list.end(); bus_itr++) {
-                // std::cout << "searching for buses" << std::endl;
-				if ((*passenger_itr)->get_current_location() == (*bus_itr)->get_current_location() && (*bus_itr)->is_going_to((*passenger_itr)->get_destination())) {
-                    // std::cout << "Someone rode a bus. Have a good trip." << std::endl;
-					(*bus_itr)->ride(*passenger_itr);
-                    ride_flag = true;
-				}
-			}
 		}
-
-//        if (!ride_flag){
-//            std::cout << "no one rode on any bus. Shit." << std::endl;
-//        }
 
 		//乗れてない人のカウンタを上げる
 		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); ) {
-			if (passenger_itr->use_count() <= 2) {	// バスに乗っていないとき
+			if (passenger_itr->use_count() <= 1) {	// バスに乗っていないとき
 				if ((*passenger_itr)->is_arrived()) {	// 目的地に到着したとき
                     // std::cout << "hooray! someone is arrived!" << std::endl;
 					// 全体の待ち時間を加算
-					total_waiting_time += (*passenger_itr)->get_wating_time();
+					total_waiting_time += (*passenger_itr)->get_waiting_time();
 					// 全体の客リストから除外
 					passenger_itr = passenger_list.erase(passenger_itr);
-					// イテレータの調整
-					if (passenger_itr == passenger_list.begin()) { continue; }
-					else { passenger_itr--; }
+					
+					continue;
 				} else {
                     //std::cout<< "fuck! no one is arriving!" << std::endl;
-					(*passenger_itr)->wating();	// 待ち時間を加算
+					(*passenger_itr)->waiting();	// 待ち時間を加算
 				}
 			}
 
-			// continueの関係からここでインクリメント
+			// eraseの関係からここでインクリメント
 			passenger_itr++;
 		}
-
-        // 全体の待ち時間を出力
-        std::cout << total_waiting_time << std::endl;
     }
+
+	// 全体の待ち時間を出力
+	std::cout << total_waiting_time << std::endl;
+
     QApplication a(argc, argv);
     traffic_simulator w;
     w.show();
