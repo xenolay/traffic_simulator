@@ -28,3 +28,13 @@
 *.exe
 *.out
 *.app
+
+# Visual Studio's files
+*.user
+*.vcxproj
+*.filters
+*.sln
+/debug
+/GeneratedFiles
+/x64
+/.vs

@@ -54,7 +54,7 @@ int main(int argc, char *argv[]){
 		unsigned int bus_route_num = 0;	// 路線図総数
 		setting_file >> bus_route_num;	// 設定ファイルから読み込み
 		for (unsigned int i = 0; i < bus_route_num; i++) {
-			unsigned int index = 0, x = 0, y = 0;
+			unsigned int index = 0;
 			std::string route_str, tmp;
 			// 設定ファイルから1行読み込み(空白文字区切り)
 			setting_file >> index >> route_str;
@@ -65,19 +65,19 @@ int main(int argc, char *argv[]){
 				bus_route.at(index).push_back(busstop_location.at(std::atoi(tmp.c_str())));
 			}
 		}
-	}
 
-    // バス路線図の出力
-    std::cout << "Loaded bus routes." << std::endl;
-    for (auto itr = bus_route.begin(); itr != bus_route.end(); itr++)
-    {
-		std::cout << (*itr).first << " : ";
-		std::cout << "(" << (*itr).second.begin()->first << "," << (*itr).second.begin()->second << ")";
-        for (auto itr2 = (*itr).second.begin() + 1; itr2 != (*itr).second.end(); itr2++)
+		// バス路線図の出力
+		std::cout << "Bus Routes:" << std::endl;
+		for (auto itr = bus_route.begin(); itr != bus_route.end(); itr++)
 		{
-			std::cout << "->" << "(" << (*itr2).first << "," << (*itr2).second << ")";
+			std::cout << (*itr).first << " : ";
+			std::cout << *((*itr).second.begin());
+			for (auto itr2 = (*itr).second.begin() + 1; itr2 != (*itr).second.end(); itr2++)
+			{
+				std::cout << "->" << (*itr2);
+			}
+			std::cout << std::endl;
 		}
-		std::cout << std::endl;
 	}
 
 	// 乗客配置
@@ -85,6 +85,7 @@ int main(int argc, char *argv[]){
 	std::list<std::shared_ptr<passenger>> passenger_list;
 	std::random_device rnd;
 	std::uniform_int_distribution<unsigned int> rand(1, busstop_prob[busstop_prob.size() - 1]);
+	std::cout << "Passenger Distribution:" << std::endl;
 	for (unsigned int i = 0; i < passenger_num; i++)
 	{
 		// スタートと目的地のバス停をランダムに決定(バス停ごとに定められた確率に応じて)
@@ -103,9 +104,7 @@ int main(int argc, char *argv[]){
 		// 乗客を全体のリストに登録
 		passenger_list.push_back(std::make_shared<passenger>(i, busstop_location[start_busstop], busstop_location[dest_busstop]));
 		// 登録した乗客のスタート地点とゴール地点を表示
-		auto start_location = busstop_location.at(start_busstop);
-		auto dest_location = busstop_location.at(dest_busstop);
-		std::cout << i << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << " -> " << dest_busstop << "(" << dest_location.first << "," << dest_location.second << ")" << std::endl;
+		std::cout << i << " : " << start_busstop << busstop_location.at(start_busstop) << " -> " << dest_busstop << busstop_location.at(dest_busstop) << std::endl;
 	}
 
 	// バスの配置
@@ -124,24 +123,25 @@ int main(int argc, char *argv[]){
 			std::cout << "The sum of allocated buses doesn't match the number of all buses." << std::endl;
 		}
 	}
+	std::cout << "Bus Distribution:" << std::endl;
 	std::list<std::shared_ptr<bus>> bus_list;
 	for (unsigned int i = 0; i < bus_allocation.size(); i++)
 	{
+		std::cout << "<Route" << i << ">" << std::endl;
 		rand = std::uniform_int_distribution<unsigned int>(0, bus_route[i].size() - 1);
 		for (unsigned int j = 0; j < bus_allocation.at(i); j++)
 		{
 			// スタートのバス停をランダムに決定
 			unsigned int start_busstop = rand(rnd);
 			// バスを全体のリストに登録
-			bus_list.push_back(std::make_shared<bus>(j, bus_capacity, bus_route[i], start_busstop));
+			bus_list.push_back(std::make_shared<bus>(bus_list.size(), bus_capacity, bus_route[i], start_busstop));
 			// 登録したバスの初期位置表示
-			auto start_location = bus_list.back()->get_current_location();
-			std::cout << j << " : " << start_busstop << "(" << start_location.first << "," << start_location.second << ")" << std::endl;
+			std::cout << bus_list.size() - 1 << " : " << start_busstop << bus_list.back()->get_current_location() << std::endl;
 		}
 	}
-	
 
 	// メインループ
+	std::cout << "Calculation:" << std::endl;
 	unsigned int total_waiting_time = 0;
     while (!passenger_list.empty()) { // 乗客がいるならば
 		//人を乗せる
@@ -169,7 +169,6 @@ int main(int argc, char *argv[]){
 		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); ) {
 			if (passenger_itr->use_count() <= 1) {	// バスに乗っていないとき
 				if ((*passenger_itr)->is_arrived()) {	// 目的地に到着したとき
-                    // std::cout << "hooray! someone is arrived!" << std::endl;
 					// 全体の待ち時間を加算
 					total_waiting_time += (*passenger_itr)->get_waiting_time();
 					// 全体の客リストから除外
@@ -177,7 +176,6 @@ int main(int argc, char *argv[]){
 					
 					continue;
 				} else {
-                    //std::cout<< "fuck! no one is arriving!" << std::endl;
 					(*passenger_itr)->waiting();	// 待ち時間を加算
 				}
 			}
@@ -188,11 +186,11 @@ int main(int argc, char *argv[]){
     }
 
 	// 全体の待ち時間を出力
-	std::cout << total_waiting_time << std::endl;
+	std::cout << "Total Waiting Time = " << total_waiting_time << std::endl;
 
-    QApplication a(argc, argv);
-    traffic_simulator w;
-    w.show();
+	QApplication a(argc, argv);
+	traffic_simulator w;
+	w.show();
 
-    return a.exec();
+	return a.exec();
 }

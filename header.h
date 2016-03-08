@@ -9,7 +9,12 @@
 #include <list>
 
 typedef std::pair<unsigned int, unsigned int> Location;
-int total_waiting_time;
+
+template<class T1, class T2>
+std::ostream& operator<<(std::ostream& s, const std::pair<T1, T2>& p)
+{
+	return s << "(" << p.first << "," << p.second << ")";
+}
 
 inline unsigned int ManhattanDistance(const Location& start, const Location& dist)
 {
@@ -30,7 +35,7 @@ public:
 	bool update_location(const Location& next_location)
 	{
 		// 1-ノルムで1より多く進んでいたらエラー
-        if (ManhattanDistance(current_location, next_location) > 1) { std::cout<< "fuckin' moving " << "(" << current_location.first << "," << current_location.second << ")->(" << next_location.first << "," << next_location.second << ")" << std::endl; return false; }
+        if (ManhattanDistance(current_location, next_location) > 1) { std::cout<< "fuckin' moving " << current_location << "->" << next_location << std::endl; return false; }
 		current_location = next_location;
 		return true;
 	}
@@ -60,19 +65,18 @@ public:
 	
 	void run()
     {
-        // std::cout<< "bus" << this->ID << " was at (" << current_location.first << "," << current_location.second << ")"<< std::endl;
 		// バスの移動
 		if (current_location.first < route[current_destination_index].first) {
 			current_location.first++;
 		} else if (current_location.first > route[current_destination_index].first) {
-            current_location.first--;
+			current_location.first--;
 		} else if (current_location.second < route[current_destination_index].second) {
 			current_location.second++;
 		} else if (current_location.second > route[current_destination_index].second) {
-            current_location.second--;
+			current_location.second--;
 		}
 
-		std::cout << "bus" << ID << " is at (" << current_location.first << "," << current_location.second << ")" << std::endl;
+		std::cout << "bus" << ID << " is at " << current_location << std::endl;
 
 		// 現在の目的地に到着したら
 		if (current_location == route[current_destination_index])
@@ -89,7 +93,6 @@ public:
 			// 乗客の現在地と目的地が一致していたら降車させる
 			if ((*pass_itr)->get_current_location() == (*pass_itr)->get_destination()) {
 				pass_itr = current_passengers.erase(pass_itr);//客のリストから削除
-				//std::cout << "someone left from the bus" << std::endl;
 				continue;
 			}
 
