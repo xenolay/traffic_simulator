@@ -34,7 +34,8 @@
 *.vcxproj
 *.filters
 *.sln
-/debug
-/GeneratedFiles
-/x64
-/.vs
+*.sdf
+debug/
+GeneratedFiles/
+x64/
+.vs/
