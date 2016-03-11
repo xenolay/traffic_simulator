@@ -61,7 +61,7 @@ int main(int argc, char *argv[]){
 			bus_route.emplace(index, std::vector<Location>());
 			// 路線についてはカンマ区切り&バス停index指定なので変換して登録
 			std::stringstream route_stream(route_str);
-			while(std::getline(route_stream, tmp, ',')){
+			while (std::getline(route_stream, tmp, ',')) {
 				bus_route.at(index).push_back(busstop_location.at(std::atoi(tmp.c_str())));
 			}
 			// バス路線図の出力
@@ -71,8 +71,33 @@ int main(int argc, char *argv[]){
 				std::cout << "->" << *itr;
 			}
 			std::cout << std::endl;
-		}
+		}		
 	}
+
+	// 乗り換え経路用にグラフの作成
+	std::vector<Location> bus_stops;
+	{
+		for (unsigned int i = 0; i < bus_route.size(); i++) { bus_stops.insert(bus_stops.end(), bus_route.at(i).begin(), bus_route.at(i).end()); }
+		std::sort(bus_stops.begin(), bus_stops.end());
+		bus_stops.erase(std::unique(bus_stops.begin(), bus_stops.end()), bus_stops.end());
+	}
+
+	std::vector<std::pair<unsigned int, unsigned int>> all_bus_routes;
+	{
+		for (unsigned int i = 0; i < bus_route.size(); i++)
+		{
+			auto s = std::distance(bus_stops.begin(), std::find(bus_stops.begin(), bus_stops.end(), bus_route.at(i).at(0)));
+			for (unsigned int j = 0; j < bus_route.at(i).size() - 1; j++)
+			{
+				auto e = std::distance(bus_stops.begin(), std::find(bus_stops.begin(), bus_stops.end(), bus_route.at(i).at(j + 1)));
+				all_bus_routes.push_back(std::make_pair(static_cast<unsigned int>(s), static_cast<unsigned int>(e)));
+				s = e;
+			}
+		}
+		std::sort(all_bus_routes.begin(), all_bus_routes.end());
+		all_bus_routes.erase(std::unique(all_bus_routes.begin(), all_bus_routes.end()), all_bus_routes.end());
+	}
+	Graph<Location, unsigned int> bus_graph(bus_stops, all_bus_routes, ManhattanDistance);
 
 	// 乗客配置
 	const unsigned int passenger_num = 100;	// 総乗客数
@@ -97,7 +122,7 @@ int main(int argc, char *argv[]){
 			}
 			if (start_busstop == dest_busstop) { i--; continue; }	// スタートと目的地が一致したらなかったことに
 																	// 乗客を全体のリストに登録
-			passenger_list.push_back(std::make_shared<passenger>(i, busstop_location.at(start_busstop), busstop_location.at(dest_busstop), bus_route));
+			passenger_list.push_back(std::make_shared<passenger>(i, bus_graph, busstop_location.at(start_busstop), busstop_location.at(dest_busstop)));
 			// 登録した乗客のスタート地点とゴール地点を表示
 			std::cout << i << " : " << start_busstop << busstop_location.at(start_busstop) << " -> " << dest_busstop << busstop_location.at(dest_busstop) << std::endl;
 		}
