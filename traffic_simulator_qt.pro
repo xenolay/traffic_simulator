@@ -14,9 +14,13 @@ TEMPLATE = app
 
 SOURCES += traffic_simulator.cpp\
         test.cpp \
+        bus.cpp\
+        passenger.cpp\
 
 HEADERS  += traffic_simulator.h\
          header.h \
+         bus.h\
+         passenger.h\
 
 FORMS    += traffic_simulator.ui
 

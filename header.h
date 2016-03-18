@@ -13,7 +13,7 @@ std::ostream& operator<<(std::ostream& s, const std::pair<T1, T2>& p)
 	return s << "(" << p.first << "," << p.second << ")";
 }
 
-template<typename T> void hash_combine(size_t& seed, T const& v){ seed ^= std::hash<T>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2); }
+template<typename T> void hash_combine(size_t& seed, T const& v){ seed ^= std::hash<T>()(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2); }
 
 struct pair_hash
 {

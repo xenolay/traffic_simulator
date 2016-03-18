@@ -12,7 +12,7 @@
 
 int main(int argc, char *argv[]){
 	// 設定ファイルのロード
-    std::ifstream setting_file("../traffic_simulator/data.txt");
+    std::ifstream setting_file("/Users/xenolay/Dev/mayfes/traffic_simulator/data.txt");
     if (setting_file.fail()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
 
 	// 全体のサイズ(1辺)
