@@ -1,15 +1,14 @@
 #include "header.h"
+#include "passenger.h"
+#include "bus.h"
 #include "traffic_simulator.h"
-#include <QtWidgets>
-#include <math.h>
-#include <QApplication>
+#include <list>
 #include <random>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
-
-using std::cout;
-using std::endl;
+#include <QtWidgets>
+#include <QApplication>
 
 int main(int argc, char *argv[]){
 	// 設定ファイルのロード
