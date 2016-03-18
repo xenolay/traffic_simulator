@@ -1,11 +1,12 @@
-#include "bus.h"
+ï»¿#include "bus.h"
+#include <QPainter>
 
 bus::bus(unsigned int IDnum, unsigned int cap, const std::vector<Location>& r, unsigned int current_index)
 	: ID(IDnum), capacity(cap), route(r), current_location(r.at(current_index)), current_destination_index((current_index + 1) % r.size()) {}
 
 void bus::run(std::unordered_multimap<Location, const bus*, pair_hash>* buses_at_busstop)
 {
-	// ƒoƒX‚ÌˆÚ“®
+	// ãƒã‚¹ã®ç§»å‹•
 	if (current_location.first < route[current_destination_index].first) {
 		current_location.first++;
 	}
@@ -21,19 +22,19 @@ void bus::run(std::unordered_multimap<Location, const bus*, pair_hash>* buses_at
 
 	std::cout << "bus" << ID << " is at " << current_location << std::endl;
 
-	// Œ»İ‚Ì–Ú“I’n‚É“’…‚µ‚½‚ç
+	// ç¾åœ¨ã®ç›®çš„åœ°ã«åˆ°ç€ã—ãŸã‚‰
 	if (current_location == route[current_destination_index])
 	{
-		// –Ú“I’n‚ğŸ‚ÌƒoƒX’â‚ÉXV
+		// ç›®çš„åœ°ã‚’æ¬¡ã®ãƒã‚¹åœã«æ›´æ–°
 		current_destination_index = (current_destination_index + 1) % route.size();
-		// ƒoƒX’â‚É‚¢‚é‚Í‚¸‚È‚Ì‚ÅA“o˜^
+		// ãƒã‚¹åœã«ã„ã‚‹ã¯ãšãªã®ã§ã€ç™»éŒ²
 		buses_at_busstop->insert(std::make_pair(current_location, this));
 	}
 
 	return;
 }
 
-// place‚É‚±‚ÌƒoƒX‚ªŒü‚©‚¤‚©‚Ç‚¤‚©
+// placeã«ã“ã®ãƒã‚¹ãŒå‘ã‹ã†ã‹ã©ã†ã‹
 bool bus::is_going_to(const Location& place) const
 {
 	for (unsigned int i = 0; i < route.size(); i++) { if (route[i] == place) { return true; } }
@@ -42,9 +43,29 @@ bool bus::is_going_to(const Location& place) const
 
 std::shared_ptr<const bus> bus::ride() const
 {
-	// capacity‚ğ’´‚¦‚È‚¢‚©”»’è
+	// capacityã‚’è¶…ãˆãªã„ã‹åˆ¤å®š
 	if (shared_from_this().use_count() - 2 >= capacity) { return nullptr; }
 	return shared_from_this();
 }
 
 Location bus::get_current_location() const { return current_location; }
+
+
+bus_qt::bus_qt(const std::shared_ptr<bus>& ptr, const QRectF& region_rect, const QImage& image) : obj(ptr), region(region_rect), img(image){}
+
+QRectF bus_qt::boundingRect() const
+{
+	return img.rect();
+}
+
+void bus_qt::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
+{
+	painter->drawImage(0, 0, img);
+}
+
+void bus_qt::advance(int step)
+{
+	QSize size = img.size();
+	Location loc = obj->get_current_location();
+	setPos(loc.first*size.width(), loc.second*size.height());
+}

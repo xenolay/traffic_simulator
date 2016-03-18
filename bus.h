@@ -1,14 +1,15 @@
-#pragma once
+ï»¿#pragma once
 #include "header.h"
 #include <memory>
 #include <unordered_map>
+#include <QGraphicsItem>
 
-// ƒoƒX
+// ãƒã‚¹
 class bus : public std::enable_shared_from_this<bus>
 {
 private:
 	const unsigned int ID;
-	const unsigned int capacity; // ’èˆõ
+	const unsigned int capacity; // å®šå“¡
 	const std::vector<Location> route;
 	Location current_location;
 	unsigned int current_destination_index;
@@ -18,10 +19,29 @@ public:
 
 	void run(std::unordered_multimap<Location, const bus*, pair_hash>* buses_at_busstop);
 
-	// place‚É‚±‚ÌƒoƒX‚ªŒü‚©‚¤‚©‚Ç‚¤‚©
+	// placeã«ã“ã®ãƒã‚¹ãŒå‘ã‹ã†ã‹ã©ã†ã‹
 	bool is_going_to(const Location& place) const;
 
 	std::shared_ptr<const bus> ride() const;
 
 	Location get_current_location() const;
 };
+
+class bus_qt : public QGraphicsItem
+{
+private:
+	std::shared_ptr<bus> obj;
+	QRectF region;
+	QImage img;
+
+protected:
+	void advance(int step) Q_DECL_OVERRIDE;
+
+public:
+	bus_qt(const std::shared_ptr<bus>& ptr, const QRectF& region_rect, const QImage& image);
+
+	QRectF boundingRect() const Q_DECL_OVERRIDE;
+	//QPainterPath shape() const Q_DECL_OVERRIDE;
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) Q_DECL_OVERRIDE;
+};
+

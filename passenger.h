@@ -1,16 +1,16 @@
-#pragma once
+ï»¿#pragma once
 #include "header.h"
 #include <memory>
 #include <unordered_map>
 
 class bus;
 
-// ‹q
+// å®¢
 class passenger
 {
 private:
 	const unsigned int ID;
-	Location current_location; // Œ»İ’n
+	Location current_location; // ç¾åœ¨åœ°
 	std::vector<Location> destinations;
 	std::vector<Location>::iterator dest_itr;
 	unsigned int waiting_time;
@@ -20,7 +20,7 @@ private:
 public:
 	passenger(unsigned int IDnum, const Graph<Location, unsigned int>& bus_graph, const Location& curr, const Location& dest);
 
-	// true‚ª–ß‚è’l‚Ì‚Æ‚«‚Í‚·‚Å‚ÉƒS[ƒ‹‚É’B‚µ‚Ä‚¢‚é
+	// trueãŒæˆ»ã‚Šå€¤ã®ã¨ãã¯ã™ã§ã«ã‚´ãƒ¼ãƒ«ã«é”ã—ã¦ã„ã‚‹
 	bool update(const std::unordered_multimap<Location, const bus*, pair_hash>& buses_at_busstop);
 
 	unsigned int get_waiting_time() const;

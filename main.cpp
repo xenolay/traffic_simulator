@@ -1,4 +1,4 @@
-#include "traffic_simulator.h"
+﻿#include "traffic_simulator.h"
 #include <QApplication>
 #include <QPushButton>
 

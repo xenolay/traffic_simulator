@@ -1,17 +1,17 @@
-#include "passenger.h"
+ï»¿#include "passenger.h"
 #include "bus.h"
 
-// o”­’n‚Æ–Ú“I’nA‚Ü‚½ƒoƒX‚Ì˜Hü}‚©‚çAÅ“K‚Èæ‚èŠ·‚¦Œo˜H‚ğZo(todo)
+// å‡ºç™ºåœ°ã¨ç›®çš„åœ°ã€ã¾ãŸãƒã‚¹ã®è·¯ç·šå›³ã‹ã‚‰ã€æœ€é©ãªä¹—ã‚Šæ›ãˆçµŒè·¯ã‚’ç®—å‡º(todo)
 std::vector<Location> GenTransferRoute(const Graph<Location, unsigned int>& bus_graph, const Location& start, const Location& dest)
 {
-	// ƒoƒX‚Ì˜Hüã‚É‚¨‚¢‚Äƒ_ƒCƒNƒXƒgƒ‰–@‚É‚æ‚èÅ’ZŒo˜H‚ğ“±o
+	// ãƒã‚¹ã®è·¯ç·šä¸Šã«ãŠã„ã¦ãƒ€ã‚¤ã‚¯ã‚¹ãƒˆãƒ©æ³•ã«ã‚ˆã‚Šæœ€çŸ­çµŒè·¯ã‚’å°å‡º
 	return bus_graph.dijkstra(bus_graph.get_vertex_index(start), bus_graph.get_vertex_index(dest));
 }
 
 passenger::passenger(unsigned int IDnum, const Graph<Location, unsigned int>& bus_graph, const Location& curr, const Location& dest)
 	: ID(IDnum), current_location(curr), destinations(GenTransferRoute(bus_graph, curr, dest)), dest_itr(destinations.begin()), waiting_time(0)
 {
-	// Œo˜H\’z‚É¸”s‚µ‚½‚ç
+	// çµŒè·¯æ§‹ç¯‰ã«å¤±æ•—ã—ãŸã‚‰
 	if (destinations.size() == 0)
 	{
 		std::cerr << "Cannot generate transfer route. (bus" << ID << ":" << current_location << "->" << dest << ")" << std::endl;
@@ -19,47 +19,47 @@ passenger::passenger(unsigned int IDnum, const Graph<Location, unsigned int>& bu
 	}
 }
 
-// true‚ª–ß‚è’l‚Ì‚Æ‚«‚Í‚·‚Å‚ÉƒS[ƒ‹‚É’B‚µ‚Ä‚¢‚é
+// trueãŒæˆ»ã‚Šå€¤ã®ã¨ãã¯ã™ã§ã«ã‚´ãƒ¼ãƒ«ã«é”ã—ã¦ã„ã‚‹
 bool passenger::update(const std::unordered_multimap<Location, const bus*, pair_hash>& buses_at_busstop)
 {
-	// ƒoƒXæÔÏ‚İ
+	// ãƒã‚¹ä¹—è»Šæ¸ˆã¿
 	if (riding_bus)
 	{
-		// ƒoƒX‚É]‚Á‚ÄˆÚ“®
-		if (ManhattanDistance(current_location, riding_bus->get_current_location()) > 1)// 1-ƒmƒ‹ƒ€‚Å1‚æ‚è‘½‚­i‚ñ‚Å‚¢‚½‚çƒGƒ‰[
+		// ãƒã‚¹ã«å¾“ã£ã¦ç§»å‹•
+		if (ManhattanDistance(current_location, riding_bus->get_current_location()) > 1)// 1-ãƒãƒ«ãƒ ã§1ã‚ˆã‚Šå¤šãé€²ã‚“ã§ã„ãŸã‚‰ã‚¨ãƒ©ãƒ¼
 		{
 			std::cerr << "fuckin' moving " << current_location << "->" << riding_bus->get_current_location() << std::endl;
 			return false;
 		}
 		current_location = riding_bus->get_current_location();
 
-		// ˆÚ“®‚µ‚ÄŒ»İ‚Ì–Ú“I’n‚È‚ç~Ô
+		// ç§»å‹•ã—ã¦ç¾åœ¨ã®ç›®çš„åœ°ãªã‚‰é™è»Š
 		if (current_location == *dest_itr)
 		{
-			dest_itr++;	// –Ú“I’n‚ğˆÚ“®
-						// ÅI–Ú“I’n‚¾‚Á‚½‚È‚çtrue‚ğ•Ô‚µ’Ê’m
+			dest_itr++;	// ç›®çš„åœ°ã‚’ç§»å‹•
+						// æœ€çµ‚ç›®çš„åœ°ã ã£ãŸãªã‚‰trueã‚’è¿”ã—é€šçŸ¥
 			if (dest_itr == destinations.end()) { riding_bus = nullptr; return true; }
-			// Ÿ‚Ì–Ú“I’n‚É‚Í‚±‚Ì‚Ü‚Ü‚Å‚Ís‚¯‚È‚¢‚È‚ç~Ô
+			// æ¬¡ã®ç›®çš„åœ°ã«ã¯ã“ã®ã¾ã¾ã§ã¯è¡Œã‘ãªã„ãªã‚‰é™è»Š
 			if (!riding_bus->is_going_to(*dest_itr)) { riding_bus = nullptr; }
 		}
 	}
 	else
 	{
-		// ƒoƒX‚Éæ‚Á‚Ä‚¢‚È‚¢‚È‚çæ‚ë‚¤‚Æ‚·‚é
-		// ¡‚¢‚éƒoƒX’â‚É~‚Ü‚Á‚Ä‚¢‚éƒoƒX‚ğ‘–¸
+		// ãƒã‚¹ã«ä¹—ã£ã¦ã„ãªã„ãªã‚‰ä¹—ã‚ã†ã¨ã™ã‚‹
+		// ä»Šã„ã‚‹ãƒã‚¹åœã«æ­¢ã¾ã£ã¦ã„ã‚‹ãƒã‚¹ã‚’èµ°æŸ»
 		auto itr_range = buses_at_busstop.equal_range(current_location);
 		for (auto itr = itr_range.first; itr != itr_range.second; itr++)
 		{
-			// Ÿ‚Ì–Ú“I’n‚És‚­‚©ƒ`ƒFƒbƒN
+			// æ¬¡ã®ç›®çš„åœ°ã«è¡Œãã‹ãƒã‚§ãƒƒã‚¯
 			if (itr->second->is_going_to(*dest_itr))
 			{
-				// s‚­‚È‚çæÔ
+				// è¡Œããªã‚‰ä¹—è»Š
 				riding_bus = itr->second->ride();
-				if (riding_bus) { break; }// æÔo—ˆ‚½‚çbreak
+				if (riding_bus) { break; }// ä¹—è»Šå‡ºæ¥ãŸã‚‰break
 			}
 		}
 
-		// æ‚ê‚È‚©‚Á‚½‚çwait
+		// ä¹—ã‚Œãªã‹ã£ãŸã‚‰wait
 		if (!riding_bus) { waiting_time++; }
 	}
 

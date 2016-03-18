@@ -1,4 +1,4 @@
-#include "header.h"
+﻿#include "header.h"
 #include "passenger.h"
 #include "bus.h"
 #include "traffic_simulator.h"
@@ -7,12 +7,56 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <future>
 #include <QtWidgets>
 #include <QApplication>
 
-int main(int argc, char *argv[]){
+unsigned int main_loop(	std::list<std::shared_ptr<passenger>>& passenger_list,
+						std::list<std::shared_ptr<bus>>& bus_list,
+						std::unordered_multimap<Location, const bus*, pair_hash>& buses_at_busstop,
+						QGraphicsScene* scene)
+{
+	std::cout << "Calculation:" << std::endl;
+	unsigned int total_waiting_time = 0;
+	// 乗客がいる限り処理
+	while (!passenger_list.empty()) {
+		// 全乗客の更新処理
+		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); ) {
+			if ((*passenger_itr)->update(buses_at_busstop))
+			{
+				// 目的地に到着した場合
+				// 全体の待ち時間を加算
+				total_waiting_time += (*passenger_itr)->get_waiting_time();
+				// 全体の客リストから除外
+				passenger_itr = passenger_list.erase(passenger_itr);
+
+				continue;
+			}
+			passenger_itr++;
+		}
+
+		buses_at_busstop.clear();
+
+		// バスを進める
+		for (auto bus_itr = bus_list.begin(); bus_itr != bus_list.end(); bus_itr++) {
+			(*bus_itr)->run(&buses_at_busstop);
+		}
+
+		// シーンの更新
+		scene->advance();
+		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	}
+
+	// 全体の待ち時間を出力
+	// std::cout << "Total Waiting Time = " << total_waiting_time << std::endl;
+
+	return total_waiting_time;
+}
+
+int main(int argc, char *argv[])
+{
 	// 設定ファイルのロード
-    std::ifstream setting_file("/Users/xenolay/Dev/mayfes/traffic_simulator/data.txt");
+    std::ifstream setting_file("../traffic_simulator/data.txt");
     if (setting_file.fail()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
 
 	// 全体のサイズ(1辺)
@@ -172,13 +216,20 @@ int main(int argc, char *argv[]){
 		}
 	}
 
-	    // 描画に必要なWindowの用意
+	// 描画に必要なWindowの用意
     QApplication app(argc, argv);
     qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
+
+	QImage bus_image;
+	bus_image.load("../traffic_simulator/bus.png");
 
     QGraphicsScene scene;
     scene.setSceneRect(-300, -300, 600, 600);
     scene.setItemIndexMethod(QGraphicsScene::NoIndex);
+	for (auto itr : bus_list)
+	{
+		scene.addItem(new bus_qt(itr, scene.sceneRect(), bus_image));
+	}
 
     QGraphicsView view(&scene);
     view.setRenderHint(QPainter::Antialiasing);
@@ -190,40 +241,18 @@ int main(int argc, char *argv[]){
     view.resize(1200, 800);
     view.show();
 
-    QTimer timer;
-    QObject::connect(&timer, SIGNAL(timeout()), &scene, SLOT(advance()));
-    timer.start(1000 / 33);
+    //QTimer timer;
+    //QObject::connect(&timer, SIGNAL(timeout()), &scene, SLOT(advance()));
+    //timer.start(1000 / 33);
 
 	// メインループ
-	std::cout << "Calculation:" << std::endl;
-	unsigned int total_waiting_time = 0;
-	// 乗客がいる限り処理
-	while (!passenger_list.empty()) {
-		// 全乗客の更新処理
-		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); ) {
-			if ((*passenger_itr)->update(buses_at_busstop))
-			{
-				// 目的地に到着した場合
-				// 全体の待ち時間を加算
-				total_waiting_time += (*passenger_itr)->get_waiting_time();
-				// 全体の客リストから除外
-				passenger_itr = passenger_list.erase(passenger_itr);
+	auto result = std::async(std::launch::async, main_loop, passenger_list, bus_list, buses_at_busstop, &scene);
 
-				continue;
-			}
-			passenger_itr++;
-		}
+	// Qtの実行
+	app.exec();
 
-		buses_at_busstop.clear();
-
-		// バスを進める
-		for (auto bus_itr = bus_list.begin(); bus_itr != bus_list.end(); bus_itr++) {
-			(*bus_itr)->run(&buses_at_busstop);
-		}
-	}
-	
 	// 全体の待ち時間を出力
-	std::cout << "Total Waiting Time = " << total_waiting_time << std::endl;
+	std::cout << "Total Waiting Time = " << result.get() << std::endl;
 
-	return app.exec();
+	return 0;
 }

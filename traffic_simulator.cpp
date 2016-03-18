@@ -1,4 +1,4 @@
-#include "traffic_simulator.h"
+﻿#include "traffic_simulator.h"
 #include "ui_traffic_simulator.h"
 
 traffic_simulator::traffic_simulator(QWidget *parent) :
