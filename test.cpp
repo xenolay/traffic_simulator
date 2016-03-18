@@ -1,5 +1,7 @@
 #include "header.h"
 #include "traffic_simulator.h"
+#include <QtWidgets>
+#include <math.h>
 #include <QApplication>
 #include <random>
 #include <fstream>
@@ -171,6 +173,28 @@ int main(int argc, char *argv[]){
 		}
 	}
 
+	    // 描画に必要なWindowの用意
+    QApplication app(argc, argv);
+    qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
+
+    QGraphicsScene scene;
+    scene.setSceneRect(-300, -300, 600, 600);
+    scene.setItemIndexMethod(QGraphicsScene::NoIndex);
+
+    QGraphicsView view(&scene);
+    view.setRenderHint(QPainter::Antialiasing);
+    view.setBackgroundBrush(QPixmap(":/images/cheese.jpg"));
+    view.setCacheMode(QGraphicsView::CacheBackground);
+    view.setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+    view.setDragMode(QGraphicsView::ScrollHandDrag);
+    view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Traffic Simulator"));
+    view.resize(1200, 800);
+    view.show();
+
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), &scene, SLOT(advance()));
+    timer.start(1000 / 33);
+
 	// メインループ
 	std::cout << "Calculation:" << std::endl;
 	unsigned int total_waiting_time = 0;
@@ -202,9 +226,5 @@ int main(int argc, char *argv[]){
 	// 全体の待ち時間を出力
 	std::cout << "Total Waiting Time = " << total_waiting_time << std::endl;
 
-	QApplication a(argc, argv);
-	traffic_simulator w;
-	w.show();
-
-	return a.exec();
+	return app.exec();
 }
