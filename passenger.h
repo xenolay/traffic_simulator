@@ -1,9 +1,11 @@
 ﻿#pragma once
 #include "header.h"
 #include <memory>
+#include <vector>
 #include <unordered_map>
 
 class bus;
+template<typename V, typename W> class Graph;
 
 // 客
 class passenger

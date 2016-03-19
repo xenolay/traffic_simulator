@@ -31,14 +31,15 @@ class bus_qt : public QGraphicsItem
 {
 private:
 	std::shared_ptr<bus> obj;
-	QRectF region;
 	QImage img;
+	QRectF region;
+	unsigned int N;
 
 protected:
 	void advance(int step) Q_DECL_OVERRIDE;
 
 public:
-	bus_qt(const std::shared_ptr<bus>& ptr, const QRectF& region_rect, const QImage& image);
+	bus_qt(const std::shared_ptr<bus>& ptr, const QImage& image, unsigned int gridN, const QRectF& region_rect);
 
 	QRectF boundingRect() const Q_DECL_OVERRIDE;
 	//QPainterPath shape() const Q_DECL_OVERRIDE;

@@ -51,11 +51,13 @@ std::shared_ptr<const bus> bus::ride() const
 Location bus::get_current_location() const { return current_location; }
 
 
-bus_qt::bus_qt(const std::shared_ptr<bus>& ptr, const QRectF& region_rect, const QImage& image) : obj(ptr), region(region_rect), img(image){}
+bus_qt::bus_qt(const std::shared_ptr<bus>& ptr, const QImage& image, unsigned int gridN, const QRectF& region_rect)
+	: obj(ptr), img(image.scaled(region_rect.width() / gridN, region_rect.height() / gridN, Qt::KeepAspectRatio, Qt::FastTransformation)), region(region_rect), N(gridN)
+{}
 
 QRectF bus_qt::boundingRect() const
 {
-	return img.rect();
+	return QRectF(img.rect()).adjusted(-0.5, -0.5, 0.5, 0.5);
 }
 
 void bus_qt::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
@@ -65,7 +67,7 @@ void bus_qt::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QW
 
 void bus_qt::advance(int step)
 {
-	QSize size = img.size();
 	Location loc = obj->get_current_location();
-	setPos(loc.first*size.width(), loc.second*size.height());
+	setPos(region.x() + (loc.second - 1) * region.width() / N, region.y() + (loc.first - 1) * region.height() / N);
+	update();
 }

@@ -1,57 +1,14 @@
 ﻿#include "header.h"
 #include "passenger.h"
 #include "bus.h"
-#include "traffic_simulator.h"
+#include "graph.h"
+#include "loop.h"
+//#include "traffic_simulator.h"
 #include <list>
 #include <random>
 #include <fstream>
 #include <sstream>
-#include <algorithm>
-#include <future>
-#include <QtWidgets>
 #include <QApplication>
-
-unsigned int main_loop(	std::list<std::shared_ptr<passenger>>& passenger_list,
-						std::list<std::shared_ptr<bus>>& bus_list,
-						std::unordered_multimap<Location, const bus*, pair_hash>& buses_at_busstop,
-						QGraphicsScene* scene)
-{
-	std::cout << "Calculation:" << std::endl;
-	unsigned int total_waiting_time = 0;
-	// 乗客がいる限り処理
-	while (!passenger_list.empty()) {
-		// 全乗客の更新処理
-		for (auto passenger_itr = passenger_list.begin(); passenger_itr != passenger_list.end(); ) {
-			if ((*passenger_itr)->update(buses_at_busstop))
-			{
-				// 目的地に到着した場合
-				// 全体の待ち時間を加算
-				total_waiting_time += (*passenger_itr)->get_waiting_time();
-				// 全体の客リストから除外
-				passenger_itr = passenger_list.erase(passenger_itr);
-
-				continue;
-			}
-			passenger_itr++;
-		}
-
-		buses_at_busstop.clear();
-
-		// バスを進める
-		for (auto bus_itr = bus_list.begin(); bus_itr != bus_list.end(); bus_itr++) {
-			(*bus_itr)->run(&buses_at_busstop);
-		}
-
-		// シーンの更新
-		scene->advance();
-		std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	}
-
-	// 全体の待ち時間を出力
-	// std::cout << "Total Waiting Time = " << total_waiting_time << std::endl;
-
-	return total_waiting_time;
-}
 
 int main(int argc, char *argv[])
 {
@@ -60,8 +17,8 @@ int main(int argc, char *argv[])
     if (setting_file.fail()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
 
 	// 全体のサイズ(1辺)
-	unsigned int size = 0;
-	setting_file >> size;	// 設定ファイルから読み込み
+	unsigned int N = 0;
+	setting_file >> N;	// 設定ファイルから読み込み
 
 	// バス停情報
 	std::unordered_map<unsigned int, Location> busstop_location;		// バス停位置情報
@@ -80,7 +37,7 @@ int main(int argc, char *argv[])
 			std::stringstream location_stream(location_str);
 			location_stream >> x >> y;
 
-			if (x == 0 || y == 0 || x > size || y > size) {
+			if (x == 0 || y == 0 || x > N || y > N) {
 				std::cerr << "The " << index << "-busstop has invalid location, so the busstop wasn't registered." << std::endl;
 				continue;
 			}
@@ -218,41 +175,34 @@ int main(int argc, char *argv[])
 
 	// 描画に必要なWindowの用意
     QApplication app(argc, argv);
-    qsrand(QTime(0, 0, 0).secsTo(QTime::currentTime()));
 
-	QImage bus_image;
-	bus_image.load("../traffic_simulator/bus.png");
+	// メインループクラス
+	MainLoop main_loop(passenger_list, bus_list, buses_at_busstop, N);
 
-    QGraphicsScene scene;
-    scene.setSceneRect(-300, -300, 600, 600);
-    scene.setItemIndexMethod(QGraphicsScene::NoIndex);
-	for (auto itr : bus_list)
-	{
-		scene.addItem(new bus_qt(itr, scene.sceneRect(), bus_image));
-	}
-
-    QGraphicsView view(&scene);
+	// ビューの作成
+    QGraphicsView view(main_loop.get_scene());
     view.setRenderHint(QPainter::Antialiasing);
-    view.setBackgroundBrush(QPixmap(":/images/cheese.jpg"));
+    view.setBackgroundBrush(Qt::white);
     view.setCacheMode(QGraphicsView::CacheBackground);
-    view.setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-    view.setDragMode(QGraphicsView::ScrollHandDrag);
+	view.setViewportUpdateMode(QGraphicsView::ViewportUpdateMode::BoundingRectViewportUpdate);
+    //view.setDragMode(QGraphicsView::ScrollHandDrag);
     view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Traffic Simulator"));
-    view.resize(1200, 800);
+    //view.resize(600, 600);
+	view.setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
+	view.setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     view.show();
 
-    //QTimer timer;
-    //QObject::connect(&timer, SIGNAL(timeout()), &scene, SLOT(advance()));
-    //timer.start(1000 / 33);
-
-	// メインループ
-	auto result = std::async(std::launch::async, main_loop, passenger_list, bus_list, buses_at_busstop, &scene);
-
+	// main_loopのトリガーとしてtimerを設定
+    QTimer timer;
+    QObject::connect(&timer, SIGNAL(timeout()), &main_loop, SLOT(run()));
+    timer.start(1000);
+	
 	// Qtの実行
+	std::cout << "Calculation:" << std::endl;
 	app.exec();
 
 	// 全体の待ち時間を出力
-	std::cout << "Total Waiting Time = " << result.get() << std::endl;
+	std::cout << "Total Waiting Time = " << main_loop.get_waiting_time() << std::endl;
 
 	return 0;
 }

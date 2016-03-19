@@ -1,5 +1,6 @@
 ﻿#include "passenger.h"
 #include "bus.h"
+#include "graph.h"
 
 // 出発地と目的地、またバスの路線図から、最適な乗り換え経路を算出(todo)
 std::vector<Location> GenTransferRoute(const Graph<Location, unsigned int>& bus_graph, const Location& start, const Location& dest)

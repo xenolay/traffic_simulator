@@ -13,14 +13,17 @@ TEMPLATE = app
 
 
 SOURCES += traffic_simulator.cpp\
-        test.cpp \
+        test.cpp\
         bus.cpp\
         passenger.cpp\
+		loop.cpp\
 
 HEADERS  += traffic_simulator.h\
-         header.h \
+         header.h\
          bus.h\
          passenger.h\
+		 loop.h\
+		 graph.h\
 
 FORMS    += traffic_simulator.ui
 
