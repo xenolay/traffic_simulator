@@ -1,6 +1,7 @@
 ﻿#include "header.h"
 #include "passenger.h"
 #include "bus.h"
+#include"busstop.h"
 #include "graph.h"
 #include "loop.h"
 //#include "traffic_simulator.h"
@@ -9,11 +10,16 @@
 #include <fstream>
 #include <sstream>
 #include <QApplication>
+#include<wincon.h>
+
 
 int main(int argc, char *argv[])
 {
+    AllocConsole();
+    freopen("CONOUT$", "w", stdout); //標準出力をコンソールにする
+    freopen("CONIN$", "r", stdin);   //標準入力をコンソールにする
 	// 設定ファイルのロード
-    std::ifstream setting_file("../traffic_simulator/data.txt");
+    std::ifstream setting_file("C:/Users/t2ladmin/Desktop/git4/data.txt");
     if (setting_file.fail()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
 
 	// 全体のサイズ(1辺)
@@ -177,7 +183,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
 	// メインループクラス
-	MainLoop main_loop(passenger_list, bus_list, buses_at_busstop, N);
+    MainLoop main_loop(passenger_list, bus_list, buses_at_busstop,busstop_location, N);
 
 	// ビューの作成
     QGraphicsView view(main_loop.get_scene());

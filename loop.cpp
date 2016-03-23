@@ -2,19 +2,20 @@
 #include "passenger.h"
 #include "bus.h"
 #include <QApplication>
+#include "busstop.h"
 
 MainLoop::MainLoop(const std::list<std::shared_ptr<passenger>>& passengers, const std::list<std::shared_ptr<bus>>& buses,
-	const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map, unsigned int gridN)
-	: passenger_list(passengers), bus_list(buses), buses_at_busstop(bus_busstop_map), scene(), total_waiting_time(0)
+    const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map,  const std::unordered_map<unsigned int,Location>& busstops,unsigned int gridN)
+    : passenger_list(passengers), bus_list(buses), buses_at_busstop(bus_busstop_map), busstop_location(busstops),scene(), total_waiting_time(0)
 {
 	// バス画像のロード
-	QImage bus_image("../traffic_simulator/bus.png");
-
+    QImage bus_image("C:/Users/t2ladmin/Desktop/git4/bus.png");
+    QImage busstop_image("C:/Users/t2ladmin/Desktop/git4/busstop.gif");
 	// シーンの作成
 	scene.setSceneRect(-300, -300, 600, 600);
 	scene.setItemIndexMethod(QGraphicsScene::NoIndex);
 	for (auto itr : bus_list){ scene.addItem(new bus_qt(itr, bus_image, gridN, scene.sceneRect())); }
-
+    for(auto itr2:busstop_location){scene.addItem(new busstop_qt(itr2.second,busstop_image,gridN,scene.sceneRect()));}
 	// シーンの更新
 	scene.advance();
 }

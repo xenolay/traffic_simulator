@@ -17,12 +17,13 @@ private:
 	std::list<std::shared_ptr<passenger>> passenger_list;
 	std::list<std::shared_ptr<bus>> bus_list;
 	std::unordered_multimap<Location, const bus*, pair_hash> buses_at_busstop;
+    std::unordered_map<unsigned int, Location> busstop_location;
 	QGraphicsScene scene;
 	unsigned int total_waiting_time;
 
 public:
 	MainLoop(const std::list<std::shared_ptr<passenger>>& passengers, const std::list<std::shared_ptr<bus>>& buses,
-				const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map, unsigned int gridN);
+                const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map,const  std::unordered_map<unsigned int,Location>& busstops, unsigned int gridN);
 
 	QGraphicsScene* get_scene();
 	unsigned int get_waiting_time() const;
