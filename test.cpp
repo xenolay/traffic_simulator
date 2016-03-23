@@ -4,22 +4,19 @@
 #include"busstop.h"
 #include "graph.h"
 #include "loop.h"
+#include "place.h"
 //#include "traffic_simulator.h"
 #include <list>
 #include <random>
 #include <fstream>
 #include <sstream>
 #include <QApplication>
-#include<wincon.h>
 
 
 int main(int argc, char *argv[])
 {
-    AllocConsole();
-    freopen("CONOUT$", "w", stdout); //標準出力をコンソールにする
-    freopen("CONIN$", "r", stdin);   //標準入力をコンソールにする
-	// 設定ファイルのロード
-    std::ifstream setting_file("C:/Users/t2ladmin/Desktop/git4/data.txt");
+    // 設定ファイルのロード
+    std::ifstream setting_file("/Users/xenolay/Dev/mayfes/traffic_simulator/data.txt");
     if (setting_file.fail()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
 
 	// 全体のサイズ(1辺)
@@ -107,9 +104,12 @@ int main(int argc, char *argv[])
 	}
 	Graph<Location, unsigned int> bus_graph(bus_stops, all_bus_routes, ManhattanDistance);
 
+    Matrix place_list(N, std::vector<int>(N,0));
+    // 場所のリスト作成
+
 	// 乗客配置
 	const unsigned int passenger_num = 100;	// 総乗客数
-	std::list<std::shared_ptr<passenger>> passenger_list;
+    std::list<std::shared_ptr<passenger>> passenger_list;
 	{
 		std::random_device rnd;
 		std::uniform_int_distribution<unsigned int> rand(1, busstop_prob[busstop_prob.size() - 1]);
@@ -129,18 +129,27 @@ int main(int argc, char *argv[])
 				if (rand_val <= busstop_prob[temp]) { dest_busstop = temp; break; }
 			}
 			if (start_busstop == dest_busstop) { i--; continue; }	// スタートと目的地が一致したらなかったことに
-																	// 乗客を全体のリストに登録
+            // 乗客を全体のリストに登録
 			passenger_list.push_back(std::make_shared<passenger>(i, bus_graph, busstop_location.at(start_busstop), busstop_location.at(dest_busstop)));
+            place_list[busstop_location.at(start_busstop).first - 1][busstop_location.at(start_busstop).second - 1]++;
 			// 登録した乗客のスタート地点とゴール地点を表示
 			std::cout << i << " : " << start_busstop << busstop_location.at(start_busstop) << " -> " << dest_busstop << busstop_location.at(dest_busstop) << std::endl;
 		}
+
+        // どこで何人待っているかの初期値を表示
+        for (unsigned int i = 0; i < N; i++)
+        {
+            for (unsigned int j = 0; j < N; j++){
+                std::cout << i + 1 << "," << j + 1 << ": waiting " << place_list[i][j] << std::endl;
+            }
+        }
 	}
 	
 	// バス配置
 	const unsigned int bus_num = 5;	// バス総台数
 	const unsigned int bus_capacity = 20; // バス定員
 	std::list<std::shared_ptr<bus>> bus_list;
-	std::unordered_multimap<Location, const bus*, pair_hash> buses_at_busstop;
+    std::unordered_multimap<Location, const bus*, pair_hash> buses_at_busstop;
 	{
 		// バス路線の配分の入力
 		std::vector<unsigned int> bus_allocation(bus_route.size());
@@ -183,7 +192,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
 	// メインループクラス
-    MainLoop main_loop(passenger_list, bus_list, buses_at_busstop,busstop_location, N);
+    MainLoop main_loop(passenger_list, bus_list, buses_at_busstop, busstop_location, N, place_list);
 
 	// ビューの作成
     QGraphicsView view(main_loop.get_scene());

@@ -1,5 +1,6 @@
 ﻿#include "passenger.h"
 #include "bus.h"
+#include "place.h"
 #include "graph.h"
 
 // 出発地と目的地、またバスの路線図から、最適な乗り換え経路を算出(todo)
@@ -25,8 +26,8 @@ bool passenger::update(const std::unordered_multimap<Location, const bus*, pair_
 {
 	// バス乗車済み
 	if (riding_bus)
-	{
-		// バスに従って移動
+    {
+        // バスに従って移動
 		if (ManhattanDistance(current_location, riding_bus->get_current_location()) > 1)// 1-ノルムで1より多く進んでいたらエラー
 		{
 			std::cerr << "fuckin' moving " << current_location << "->" << riding_bus->get_current_location() << std::endl;
@@ -39,7 +40,7 @@ bool passenger::update(const std::unordered_multimap<Location, const bus*, pair_
 		{
 			dest_itr++;	// 目的地を移動
 						// 最終目的地だったならtrueを返し通知
-			if (dest_itr == destinations.end()) { riding_bus = nullptr; return true; }
+            if (dest_itr == destinations.end()) { riding_bus = nullptr; return true; }
 			// 次の目的地にはこのままでは行けないなら降車
 			if (!riding_bus->is_going_to(*dest_itr)) { riding_bus = nullptr; }
 		}
@@ -68,3 +69,5 @@ bool passenger::update(const std::unordered_multimap<Location, const bus*, pair_
 }
 
 unsigned int passenger::get_waiting_time() const { return waiting_time; }
+
+Location passenger::get_current_location() { return current_location; }

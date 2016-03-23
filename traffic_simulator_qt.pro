@@ -16,16 +16,18 @@ SOURCES += traffic_simulator.cpp\
         test.cpp\
         bus.cpp\
         passenger.cpp\
-		loop.cpp\
-    busstop.cpp
+        loop.cpp\
+        busstop.cpp\
+        place.cpp
 
-HEADERS  += traffic_simulator.h\
-         header.h\
-         bus.h\
-         passenger.h\
-		 loop.h\
-		 graph.h\
-    busstop.h
+HEADERS += traffic_simulator.h\
+        header.h\
+        bus.h\
+        passenger.h\
+        loop.h\
+        graph.h\
+        busstop.h\
+        place.h
 
 FORMS    += traffic_simulator.ui
 

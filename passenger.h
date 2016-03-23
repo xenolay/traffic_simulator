@@ -23,7 +23,8 @@ public:
 	passenger(unsigned int IDnum, const Graph<Location, unsigned int>& bus_graph, const Location& curr, const Location& dest);
 
 	// trueが戻り値のときはすでにゴールに達している
-	bool update(const std::unordered_multimap<Location, const bus*, pair_hash>& buses_at_busstop);
+    bool update(const std::unordered_multimap<Location, const bus*, pair_hash>& buses_at_busstop);
 
 	unsigned int get_waiting_time() const;
+    Location get_current_location();
 };

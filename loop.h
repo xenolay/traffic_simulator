@@ -20,13 +20,16 @@ private:
     std::unordered_map<unsigned int, Location> busstop_location;
 	QGraphicsScene scene;
 	unsigned int total_waiting_time;
+    unsigned int gridN;
+
 
 public:
-	MainLoop(const std::list<std::shared_ptr<passenger>>& passengers, const std::list<std::shared_ptr<bus>>& buses,
-                const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map,const  std::unordered_map<unsigned int,Location>& busstops, unsigned int gridN);
+    MainLoop(const std::list<std::shared_ptr<passenger>>& passengers, const std::list<std::shared_ptr<bus>>& buses,
+                const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map, const std::unordered_map<unsigned int,Location>& busstops, unsigned int gridN, Matrix &placelist);
 
 	QGraphicsScene* get_scene();
 	unsigned int get_waiting_time() const;
+    Matrix place_list;
 
 
 public slots:

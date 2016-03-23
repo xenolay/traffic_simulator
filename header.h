@@ -1,8 +1,11 @@
 ﻿#pragma once
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 typedef std::pair<unsigned int, unsigned int> Location;
+
+typedef std::vector<std::vector<int>> Matrix;
 
 template<class T1, class T2>
 std::ostream& operator<<(std::ostream& s, const std::pair<T1, T2>& p)
