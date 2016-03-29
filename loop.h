@@ -7,6 +7,7 @@
 
 class passenger;
 class bus;
+class Field;
 
 class MainLoop : public QObject
 {
@@ -17,20 +18,17 @@ private:
 	std::list<std::shared_ptr<passenger>> passenger_list;
 	std::list<std::shared_ptr<bus>> bus_list;
 	std::unordered_multimap<Location, const bus*, pair_hash> buses_at_busstop;
-    std::unordered_map<unsigned int, Location> busstop_location;
+	std::shared_ptr<Field> field;
 	QGraphicsScene scene;
 	unsigned int total_waiting_time;
-    unsigned int gridN;
-
+	unsigned int N;
 
 public:
     MainLoop(const std::list<std::shared_ptr<passenger>>& passengers, const std::list<std::shared_ptr<bus>>& buses,
-                const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map, const std::unordered_map<unsigned int,Location>& busstops, unsigned int gridN, Matrix &placelist);
+                const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map, const std::unordered_map<unsigned int,Location>& busstop_location, unsigned int gridN);
 
 	QGraphicsScene* get_scene();
 	unsigned int get_waiting_time() const;
-    Matrix place_list;
-
 
 public slots:
 	void run();

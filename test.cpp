@@ -1,10 +1,8 @@
 ﻿#include "header.h"
 #include "passenger.h"
 #include "bus.h"
-#include"busstop.h"
 #include "graph.h"
 #include "loop.h"
-#include "place.h"
 //#include "traffic_simulator.h"
 #include <list>
 #include <random>
@@ -16,7 +14,7 @@
 int main(int argc, char *argv[])
 {
     // 設定ファイルのロード
-    std::ifstream setting_file("/Users/xenolay/Dev/mayfes/traffic_simulator/data.txt");
+    std::ifstream setting_file("../traffic_simulator/data.txt");
     if (setting_file.fail()) { std::cerr << "The setting file wasn't found." << std::endl; return -1; }
 
 	// 全体のサイズ(1辺)
@@ -104,9 +102,6 @@ int main(int argc, char *argv[])
 	}
 	Graph<Location, unsigned int> bus_graph(bus_stops, all_bus_routes, ManhattanDistance);
 
-    Matrix place_list(N, std::vector<int>(N,0));
-    // 場所のリスト作成
-
 	// 乗客配置
 	const unsigned int passenger_num = 100;	// 総乗客数
     std::list<std::shared_ptr<passenger>> passenger_list;
@@ -129,20 +124,13 @@ int main(int argc, char *argv[])
 				if (rand_val <= busstop_prob[temp]) { dest_busstop = temp; break; }
 			}
 			if (start_busstop == dest_busstop) { i--; continue; }	// スタートと目的地が一致したらなかったことに
-            // 乗客を全体のリストに登録
+           
+			// 乗客を全体のリストに登録
 			passenger_list.push_back(std::make_shared<passenger>(i, bus_graph, busstop_location.at(start_busstop), busstop_location.at(dest_busstop)));
-            place_list[busstop_location.at(start_busstop).first - 1][busstop_location.at(start_busstop).second - 1]++;
+
 			// 登録した乗客のスタート地点とゴール地点を表示
 			std::cout << i << " : " << start_busstop << busstop_location.at(start_busstop) << " -> " << dest_busstop << busstop_location.at(dest_busstop) << std::endl;
 		}
-
-        // どこで何人待っているかの初期値を表示
-        for (unsigned int i = 0; i < N; i++)
-        {
-            for (unsigned int j = 0; j < N; j++){
-                std::cout << i + 1 << "," << j + 1 << ": waiting " << place_list[i][j] << std::endl;
-            }
-        }
 	}
 	
 	// バス配置
@@ -192,7 +180,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
 	// メインループクラス
-    MainLoop main_loop(passenger_list, bus_list, buses_at_busstop, busstop_location, N, place_list);
+    MainLoop main_loop(passenger_list, bus_list, buses_at_busstop, busstop_location, N);
 
 	// ビューの作成
     QGraphicsView view(main_loop.get_scene());
@@ -202,7 +190,7 @@ int main(int argc, char *argv[])
 	view.setViewportUpdateMode(QGraphicsView::ViewportUpdateMode::BoundingRectViewportUpdate);
     //view.setDragMode(QGraphicsView::ScrollHandDrag);
     view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Traffic Simulator"));
-    //view.resize(600, 600);
+    view.resize(main_loop.get_scene()->sceneRect().size().toSize());
 	view.setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 	view.setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     view.show();

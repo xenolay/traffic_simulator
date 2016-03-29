@@ -17,8 +17,7 @@ SOURCES += traffic_simulator.cpp\
         bus.cpp\
         passenger.cpp\
         loop.cpp\
-        busstop.cpp\
-        place.cpp
+        field.cpp
 
 HEADERS += traffic_simulator.h\
         header.h\
@@ -26,8 +25,7 @@ HEADERS += traffic_simulator.h\
         passenger.h\
         loop.h\
         graph.h\
-        busstop.h\
-        place.h
+        field.h
 
 FORMS    += traffic_simulator.ui
 

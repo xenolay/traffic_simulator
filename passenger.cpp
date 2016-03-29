@@ -1,7 +1,7 @@
 ﻿#include "passenger.h"
 #include "bus.h"
-#include "place.h"
 #include "graph.h"
+#include "field.h"
 
 // 出発地と目的地、またバスの路線図から、最適な乗り換え経路を算出(todo)
 std::vector<Location> GenTransferRoute(const Graph<Location, unsigned int>& bus_graph, const Location& start, const Location& dest)
@@ -22,7 +22,7 @@ passenger::passenger(unsigned int IDnum, const Graph<Location, unsigned int>& bu
 }
 
 // trueが戻り値のときはすでにゴールに達している
-bool passenger::update(const std::unordered_multimap<Location, const bus*, pair_hash>& buses_at_busstop)
+std::shared_ptr<passenger> passenger::update(const std::unordered_multimap<Location, const bus*, pair_hash>& buses_at_busstop)
 {
 	// バス乗車済み
 	if (riding_bus)
@@ -31,7 +31,7 @@ bool passenger::update(const std::unordered_multimap<Location, const bus*, pair_
 		if (ManhattanDistance(current_location, riding_bus->get_current_location()) > 1)// 1-ノルムで1より多く進んでいたらエラー
 		{
 			std::cerr << "fuckin' moving " << current_location << "->" << riding_bus->get_current_location() << std::endl;
-			return false;
+			return shared_from_this();
 		}
 		current_location = riding_bus->get_current_location();
 
@@ -39,8 +39,8 @@ bool passenger::update(const std::unordered_multimap<Location, const bus*, pair_
 		if (current_location == *dest_itr)
 		{
 			dest_itr++;	// 目的地を移動
-						// 最終目的地だったならtrueを返し通知
-            if (dest_itr == destinations.end()) { riding_bus = nullptr; return true; }
+			// 最終目的地だったならtrueを返し通知
+            if (dest_itr == destinations.end()) { riding_bus = nullptr; return nullptr; }
 			// 次の目的地にはこのままでは行けないなら降車
 			if (!riding_bus->is_going_to(*dest_itr)) { riding_bus = nullptr; }
 		}
@@ -62,12 +62,12 @@ bool passenger::update(const std::unordered_multimap<Location, const bus*, pair_
 		}
 
 		// 乗れなかったらwait
-		if (!riding_bus) { waiting_time++; }
+		if (!riding_bus){ waiting_time++; }
 	}
 
-	return false;
+	return shared_from_this();
 }
 
+bool passenger::is_riding() const { return static_cast<bool>(riding_bus); }
 unsigned int passenger::get_waiting_time() const { return waiting_time; }
-
-Location passenger::get_current_location() { return current_location; }
+Location passenger::get_current_location() const { return current_location; }

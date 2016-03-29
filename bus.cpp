@@ -52,7 +52,7 @@ Location bus::get_current_location() const { return current_location; }
 
 
 bus_qt::bus_qt(const std::shared_ptr<bus>& ptr, const QImage& image, unsigned int gridN, const QRectF& region_rect)
-	: obj(ptr), img(image.scaled(region_rect.width() / gridN, region_rect.height() / gridN, Qt::KeepAspectRatio, Qt::FastTransformation)), region(region_rect), N(gridN)
+	: obj(ptr), img(image), region(region_rect), N(gridN)
 {}
 
 QRectF bus_qt::boundingRect() const
@@ -67,7 +67,11 @@ void bus_qt::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QW
 
 void bus_qt::advance(int step)
 {
-	Location loc = obj->get_current_location();
-	setPos(region.x() + (loc.second - 1) * region.width() / N, region.y() + (loc.first - 1) * region.height() / N);
-	update();
+	if (step == 0)
+	{
+		Location loc = obj->get_current_location();
+		setPos(region.x() + (loc.second - 1) * img.rect().width(), region.y() + (loc.first - 1) * img.rect().height());
+		update();
+	}
+	return;
 }
