@@ -31,7 +31,7 @@ class bus_qt : public QGraphicsItem
 {
 private:
 	std::shared_ptr<bus> obj;
-	QImage img;
+	QImage img, current_img;
 	QRectF region;
 	unsigned int N;
 

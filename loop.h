@@ -20,9 +20,10 @@ private:
 	std::unordered_multimap<Location, const bus*, pair_hash> buses_at_busstop;
 	std::shared_ptr<Field> field;
 	QGraphicsScene scene;
+	QGraphicsSimpleTextItem *elapsed_text, *waiting_text, *population_text;
 	unsigned int total_waiting_time;
-	unsigned int N;
-
+	unsigned int elapsed_frame;
+	
 public:
     MainLoop(const std::list<std::shared_ptr<passenger>>& passengers, const std::list<std::shared_ptr<bus>>& buses,
                 const std::unordered_multimap<Location, const bus*, pair_hash>& bus_busstop_map, const std::unordered_map<unsigned int,Location>& busstop_location, unsigned int gridN);

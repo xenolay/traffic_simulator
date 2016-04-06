@@ -49,17 +49,17 @@ Field_qt::Field_qt(const std::shared_ptr<Field>& ptr, unsigned int gridN, unsign
 
 void Field_qt::advance(int step)
 {
-	if (step == 0)
-	{
-		// どこで何人待っているかのを表示(括弧内はマス目上に存在している人数)
-		for (unsigned int i = 1; i < N + 1; i++)
-		{
-			for (unsigned int j = 1; j < N + 1; j++) {
-				Location loc(i, j);
-				std::cout << loc << ": waiting " << obj->get_passenger_num(loc) << " (" << obj->get_all_passenger_num(loc) << ")" << std::endl;
-			}
-		}
-	}
+	//if (step == 0)
+	//{
+	//	// どこで何人待っているかのを表示(括弧内はマス目上に存在している人数)
+	//	for (unsigned int i = 1; i < N + 1; i++)
+	//	{
+	//		for (unsigned int j = 1; j < N + 1; j++) {
+	//			Location loc(i, j);
+	//			std::cout << loc << ": waiting " << obj->get_passenger_num(loc) << " (" << obj->get_all_passenger_num(loc) << ")" << std::endl;
+	//		}
+	//	}
+	//}
 	return;
 }
 
@@ -72,7 +72,7 @@ void Field_qt::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, 
 	{
 		for (unsigned int j = 1; j < N + 1; j++) {
 			Location loc(i, j);
-			QRectF paint_region(region.x() + (loc.second - 1) * region.width() / N, region.y() + (loc.first - 1) * region.height() / N, region.width() / N, region.height() / N);
+			QRectF paint_region(region.left() + (loc.second - 1) * region.width() / N, region.top() + (loc.first - 1) * region.height() / N, region.width() / N, region.height() / N);
 			QColor color(QColor::fromHsvF(std::max(0, static_cast<int>(240 - obj->get_waiting_time(loc))) / 360.0, 1.0, 1.0, obj->get_passenger_num(loc) / static_cast<double>(passenger_num)));
 			painter->fillRect(paint_region, color);
 		}

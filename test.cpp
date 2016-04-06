@@ -190,7 +190,7 @@ int main(int argc, char *argv[])
 	view.setViewportUpdateMode(QGraphicsView::ViewportUpdateMode::BoundingRectViewportUpdate);
     //view.setDragMode(QGraphicsView::ScrollHandDrag);
     view.setWindowTitle(QT_TRANSLATE_NOOP(QGraphicsView, "Traffic Simulator"));
-    view.resize(main_loop.get_scene()->sceneRect().size().toSize());
+    view.resize(main_loop.get_scene()->sceneRect().adjusted(-5,-5,5,5).size().toSize());
 	view.setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
 	view.setVerticalScrollBarPolicy(Qt::ScrollBarPolicy::ScrollBarAlwaysOff);
     view.show();
@@ -198,7 +198,7 @@ int main(int argc, char *argv[])
 	// main_loopのトリガーとしてtimerを設定
     QTimer timer;
     QObject::connect(&timer, SIGNAL(timeout()), &main_loop, SLOT(run()));
-    timer.start(1000);
+    timer.start(100);
 	
 	// Qtの実行
 	std::cout << "Calculation:" << std::endl;

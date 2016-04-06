@@ -52,17 +52,19 @@ Location bus::get_current_location() const { return current_location; }
 
 
 bus_qt::bus_qt(const std::shared_ptr<bus>& ptr, const QImage& image, unsigned int gridN, const QRectF& region_rect)
-	: obj(ptr), img(image), region(region_rect), N(gridN)
-{}
+	: obj(ptr), img(image), current_img(img), region(region_rect), N(gridN)
+{
+	setTransformOriginPoint(img.rect().center());
+}
 
 QRectF bus_qt::boundingRect() const
 {
-	return QRectF(img.rect()).adjusted(-0.5, -0.5, 0.5, 0.5);
+	return QRectF(current_img.rect()).adjusted(-0.5, -0.5, 0.5, 0.5);
 }
 
 void bus_qt::paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget)
 {
-	painter->drawImage(0, 0, img);
+	painter->drawImage(0, 0, current_img);
 }
 
 void bus_qt::advance(int step)
@@ -70,7 +72,14 @@ void bus_qt::advance(int step)
 	if (step == 0)
 	{
 		Location loc = obj->get_current_location();
-		setPos(region.x() + (loc.second - 1) * img.rect().width(), region.y() + (loc.first - 1) * img.rect().height());
+		auto new_x = region.x() + (loc.second - 1) * img.rect().width();
+		auto new_y = region.y() + (loc.first - 1) * img.rect().height();
+		if (new_x >= pos().x()) { current_img = img.mirrored(false, false); }
+		else if (new_x < pos().x()) { current_img = img.mirrored(true, false); }
+		if (new_y > pos().y()) { setRotation(90); }
+		else if (new_y < pos().y()) { setRotation(-90); }
+		else { setRotation(0); }
+		setPos(new_x, new_y);
 		update();
 	}
 	return;
