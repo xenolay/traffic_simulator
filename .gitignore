@@ -35,6 +35,7 @@
 *.filters
 *.sln
 *.sdf
+*.db
 debug/
 GeneratedFiles/
 x64/
