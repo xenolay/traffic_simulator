@@ -23,8 +23,8 @@ MainLoop::MainLoop(const std::list<std::shared_ptr<passenger>>& passengers, cons
 		QImage busstop_image("../traffic_simulator/busstop.png");
 		bus_image = bus_image_raw.scaled(image_size, Qt::KeepAspectRatio);
 		busstop_pixmap.convertFromImage(busstop_image.scaled(image_size, Qt::KeepAspectRatio));
-	}	
-	
+	}
+
 	// 各itemの登録
 	scene.addItem(new Field_qt(field, N, passenger_list.size(), scene_rect));
 	for (auto itr : busstop_location)
@@ -88,7 +88,7 @@ void MainLoop::run()
 		elapsed_text->setPos(-elapsed_text->boundingRect().width() / 2, scene.sceneRect().top() + elapsed_text->boundingRect().height());
 		waiting_text->setPos(-waiting_text->boundingRect().width() / 2, -waiting_text->boundingRect().height() / 2);
 		population_text->setPos(-population_text->boundingRect().width() / 2, -population_text->boundingRect().height() - waiting_text->boundingRect().height() / 2);
-		
+
 		if (passenger_list.empty()) { waiting_text->setBrush(Qt::red); }
 
 		// 一度バス停上のバス情報をクリア

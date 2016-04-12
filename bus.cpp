@@ -20,7 +20,7 @@ void bus::run(std::unordered_multimap<Location, const bus*, pair_hash>* buses_at
 		current_location.second--;
 	}
 
-	std::cout << "bus" << ID << " is at " << current_location << std::endl;
+    //std::cout << "bus" << ID << " is at " << current_location << std::endl;
 
 	// 現在の目的地に到着したら
 	if (current_location == route[current_destination_index])
